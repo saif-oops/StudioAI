@@ -7,39 +7,19 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   const menuItems = [
-    {
-      name: "🏠 Dashboard",
-      path: "/dashboard",
-    },
-    {
-      name: "🎨 Thumbnail Analyzer",
-      path: "/thumbnail-analyzer",
-    },
-    {
-      name: "✍️ Title Generator",
-      path: "/title-generator",
-    },
-    {
-      name: "📊 Analytics",
-      path: "/analytics",
-    },
-    {
-      name: "⚙️ Settings",
-      path: "/settings",
-    },
+    { name: "🏠 Dashboard", path: "/dashboard" },
+    { name: "🎨 Thumbnail Analyzer", path: "/thumbnail-analyzer" },
+    { name: "✏️ Title Generator", path: "/title-generator" },
+    { name: "📜 History", path: "/history" },
+    { name: "📊 Analytics", path: "/analytics" },
+    { name: "⚙️ Settings", path: "/settings" },
   ];
 
   return (
     <aside className="w-64 min-h-screen border-r border-gray-800 bg-black p-6">
-
-      <h1 className="mb-10 text-2xl font-bold text-white">
-        Saflix AI
-      </h1>
-
+      <h1 className="mb-10 text-2xl font-bold text-white">Saflix AI</h1>
       <nav className="space-y-3">
-
         {menuItems.map((item) => (
-
           <Link
             key={item.path}
             href={item.path}
@@ -51,11 +31,8 @@ export default function Sidebar() {
           >
             {item.name}
           </Link>
-
         ))}
-
       </nav>
-
     </aside>
   );
 }
