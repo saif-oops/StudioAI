@@ -9,6 +9,7 @@ export default function Sidebar() {
   const menuItems = [
     { name: "🏠 Dashboard", path: "/dashboard" },
     { name: "🎨 Thumbnail Analyzer", path: "/thumbnail-analyzer" },
+    { name: "🖼️ Thumbnail Generator", path: "/thumbnail-generator" },
     { name: "✏️ Title Generator", path: "/title-generator" },
     { name: "📜 History", path: "/history" },
     { name: "📊 Analytics", path: "/analytics" },
