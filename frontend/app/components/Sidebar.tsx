@@ -11,6 +11,7 @@ export default function Sidebar() {
     { name: "🎨 Thumbnail Analyzer", path: "/thumbnail-analyzer" },
     { name: "🖼️ Thumbnail Generator", path: "/thumbnail-generator" },
     { name: "✏️ Title Generator", path: "/title-generator" },
+    { name: "📝 Description Generator", path: "/description-generator" },
     { name: "📜 History", path: "/history" },
     { name: "📊 Analytics", path: "/analytics" },
     { name: "⚙️ Settings", path: "/settings" },
