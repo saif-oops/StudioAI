@@ -1,13 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { User } from "lucide-react";
 
 export default function Hero() {
   const words = ["Get Watched", "Go Viral", "Get Clicked", "Stand Out"];
   const badges = ["6 AI Tools, One Studio", "Titles Scored by AI", "From Idea to Upload", "Built for Creators"];
+
   const [index, setIndex] = useState(0);
   const [visible, setVisible] = useState(true);
 
+  const [badgeIndex, setBadgeIndex] = useState(0);
+  const [typedText, setTypedText] = useState("");
+  const [typing, setTyping] = useState(true);
+
+  // Bottom word rotation (unchanged behavior)
   useEffect(() => {
     const interval = setInterval(() => {
       setVisible(false);
@@ -19,6 +26,40 @@ export default function Hero() {
 
     return () => clearInterval(interval);
   }, []);
+
+  // Top badge typewriter effect
+  useEffect(() => {
+    const currentWord = badges[badgeIndex];
+    let charIndex = 0;
+    let timeout: NodeJS.Timeout;
+
+    if (typing) {
+      const typeChar = () => {
+        if (charIndex <= currentWord.length) {
+          setTypedText(currentWord.slice(0, charIndex));
+          charIndex++;
+          timeout = setTimeout(typeChar, 50);
+        } else {
+          timeout = setTimeout(() => setTyping(false), 1800);
+        }
+      };
+      typeChar();
+    } else {
+      const deleteChar = () => {
+        if (charIndex <= currentWord.length) {
+          setTypedText(currentWord.slice(0, currentWord.length - charIndex));
+          charIndex++;
+          timeout = setTimeout(deleteChar, 25);
+        } else {
+          setBadgeIndex((prev) => (prev + 1) % badges.length);
+          setTyping(true);
+        }
+      };
+      deleteChar();
+    }
+
+    return () => clearTimeout(timeout);
+  }, [typing, badgeIndex]);
 
   const transitionStyle = (offset: number, blurAmount: number) => ({
     opacity: visible ? 1 : 0,
@@ -48,14 +89,15 @@ export default function Hero() {
 
       <div className="relative z-10 mx-auto flex min-h-[85vh] max-w-5xl flex-col items-center justify-center px-6 text-center">
         <div
-          className="mb-6 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium"
+          className="mb-6 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium min-w-[260px] justify-center"
           style={glassStyle}
         >
-          <span className="rounded-full bg-[var(--accent)] px-2 py-0.5 text-xs font-bold text-white">
+          <span className="rounded-full bg-[var(--accent)] px-2 py-0.5 text-xs font-bold text-white shrink-0">
             New
           </span>
-          <span style={transitionStyle(8, 4)} className="inline-block">
-            {badges[index]}
+          <span className="inline-block whitespace-nowrap">
+            {typedText}
+            <span className="inline-block w-[2px] h-4 bg-[var(--accent)] ml-0.5 align-middle animate-pulse" />
           </span>
         </div>
 
@@ -73,22 +115,22 @@ export default function Hero() {
         </h1>
 
         <p className="mt-6 max-w-2xl text-lg text-[var(--muted)]">
-          The all-in-one AI studio for YouTube creators. Generate titles, analyze thumbnails, write scripts, and grow faster all in one place.
+          The all-in-one AI studio for YouTube creators. Generate titles, analyze thumbnails, write scripts, and grow faster — all in one place.
         </p>
 
         <div className="mt-6 flex items-center gap-3">
           <div className="flex">
-            {["🧑", "👩", "🧔", "👨"].map((emoji, i) => (
+            {[0, 1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="h-9 w-9 -ml-2 first:ml-0 flex items-center justify-center rounded-full border-2 border-[var(--background)] bg-[var(--surface)] text-sm"
+                className="h-9 w-9 -ml-2 first:ml-0 flex items-center justify-center rounded-full border-2 border-[var(--background)] bg-[var(--surface)]"
               >
-                {emoji}
+                <User size={16} className="text-[var(--muted)]" strokeWidth={2} />
               </div>
             ))}
           </div>
           <p className="text-sm text-[var(--muted)]">
-            <span className="font-bold text-[var(--accent)]">1000+</span> creators already growing with Saflix
+            <span className="font-bold text-[var(--accent)]">500+</span> creators already growing with Saflix
           </p>
         </div>
 

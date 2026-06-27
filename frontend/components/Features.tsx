@@ -1,11 +1,13 @@
+import { PenLine, Palette, ImageIcon, FileText, Clapperboard, History } from "lucide-react";
+
 export default function Features() {
   const features = [
-    { icon: "✏️", title: "Title Generator", desc: "Generate viral, high-CTR titles scored by AI.", color: "#3B82F6" },
-    { icon: "🎨", title: "Thumbnail Analyzer", desc: "Get instant feedback on contrast, text, and emotion.", color: "#10B981" },
-    { icon: "🖼️", title: "Thumbnail Generator", desc: "Upload your photo, AI creates a click-worthy thumbnail.", color: "#FF4D2E" },
-    { icon: "📝", title: "Description Generator", desc: "SEO-friendly descriptions and tags in seconds.", color: "#A855F7" },
-    { icon: "🎬", title: "Script Generator", desc: "Hooks and outlines that keep viewers watching.", color: "#FFB800" },
-    { icon: "📜", title: "History", desc: "All your generated content saved in one place.", color: "#8B8B8E" },
+    { icon: PenLine, title: "Title Generator", desc: "Generate viral, high-CTR titles scored by AI.", color: "#3B82F6" },
+    { icon: Palette, title: "Thumbnail Analyzer", desc: "Get instant feedback on contrast, text, and emotion.", color: "#10B981" },
+    { icon: ImageIcon, title: "Thumbnail Generator", desc: "Upload your photo, AI creates a click-worthy thumbnail.", color: "#FF0033" },
+    { icon: FileText, title: "Description Generator", desc: "SEO-friendly descriptions and tags in seconds.", color: "#A855F7" },
+    { icon: Clapperboard, title: "Script Generator", desc: "Hooks and outlines that keep viewers watching.", color: "#FFD600" },
+    { icon: History, title: "History", desc: "All your generated content saved in one place.", color: "#8B8B8E" },
   ];
 
   return (
@@ -23,21 +25,24 @@ export default function Features() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {features.map((f) => (
-          <div
-            key={f.title}
-            className="group rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6 transition-all hover:border-[var(--accent)]/40 hover:-translate-y-1"
-          >
+        {features.map((f) => {
+          const Icon = f.icon;
+          return (
             <div
-              className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl text-2xl"
-              style={{ backgroundColor: `${f.color}1a` }}
+              key={f.title}
+              className="group rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6 transition-all hover:border-[var(--accent)]/40 hover:-translate-y-1"
             >
-              {f.icon}
+              <div
+                className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl"
+                style={{ backgroundColor: `${f.color}1a` }}
+              >
+                <Icon size={22} style={{ color: f.color }} strokeWidth={2} />
+              </div>
+              <h3 className="mb-2 font-display text-lg font-bold">{f.title}</h3>
+              <p className="text-sm text-[var(--muted)]">{f.desc}</p>
             </div>
-            <h3 className="mb-2 font-display text-lg font-bold">{f.title}</h3>
-            <p className="text-sm text-[var(--muted)]">{f.desc}</p>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
