@@ -6,7 +6,7 @@ export default function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   const faqs = [
-    { q: "What is Saflix AI Studio?", a: "Saflix is an all-in-one AI toolkit for YouTube creators — generate titles, analyze and create thumbnails, write descriptions, tags, and scripts, all in one dashboard." },
+    { q: "What is Saflix AI Studio?", a: "Saflix is an all-in-one AI toolkit for YouTube creators generate titles, analyze and create thumbnails, write descriptions, tags, and scripts, all in one dashboard." },
     { q: "Is it free to use?", a: "Yes, the core tools are free to use. Some advanced features may require a paid plan as we grow." },
     { q: "Do I need design skills for the thumbnail tools?", a: "No. Just upload a photo and a title, and the AI handles the rest." },
     { q: "Can I save my generated content?", a: "Yes, every title, description, and script you generate is saved automatically in your History tab." },

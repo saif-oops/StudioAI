@@ -34,12 +34,7 @@ export default function TitleGenerator() {
       const data = await fetchTitles();
       if (data.success) {
         setTitles(data.titles);
-
-        addHistoryItem({
-          tool: "title-generator",
-          input: topic,
-          output: data.titles,
-        });
+        addHistoryItem({ tool: "title-generator", input: topic, output: data.titles });
       } else {
         alert("Failed to generate titles");
       }
@@ -55,7 +50,6 @@ export default function TitleGenerator() {
 
   const regenerateOne = async (index: number) => {
     setRegeneratingIndex(index);
-
     try {
       const data = await fetchTitles();
       if (data.success && data.titles.length > 0) {
@@ -69,7 +63,6 @@ export default function TitleGenerator() {
     } catch (error) {
       console.error(error);
     }
-
     setRegeneratingIndex(null);
   };
 
@@ -81,36 +74,43 @@ export default function TitleGenerator() {
 
   const scoreColor = (score: number) => {
     if (score >= 85) return "text-green-400 border-green-400/30 bg-green-400/10";
-    if (score >= 70) return "text-yellow-400 border-yellow-400/30 bg-yellow-400/10";
+    if (score >= 70) return "text-[var(--highlight)] border-[var(--highlight)]/30 bg-[var(--highlight)]/10";
     return "text-red-400 border-red-400/30 bg-red-400/10";
   };
 
   return (
-    <main className="min-h-screen bg-black text-white flex">
+    <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)] flex">
       <Sidebar />
 
       <section className="flex-1 p-8">
         <Header />
 
-        <h1 className="text-4xl font-bold">Title Generator ✨</h1>
-        <p className="mt-2 text-gray-400">
-          Generate high CTR YouTube titles using AI
-        </p>
+        <div className="relative">
+          <p className="font-display text-xs font-semibold tracking-[0.2em] text-[var(--accent)] uppercase">
+            Title Generator
+          </p>
+          <h1 className="mt-2 font-display text-4xl font-bold">
+            Titles That <span className="text-[var(--accent)]">Get Clicked</span>
+          </h1>
+          <p className="mt-2 text-[var(--muted)]">
+            Generate high CTR YouTube titles using AI
+          </p>
+        </div>
 
-        <div className="mt-8 rounded-2xl border border-gray-800 p-6">
+        <div className="mt-8 rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">
           <input
             type="text"
             placeholder="Enter video topic..."
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            className="w-full rounded-xl bg-gray-900 p-4 text-white outline-none"
+            className="w-full rounded-xl bg-[var(--background)] border border-[var(--border-color)] p-4 text-[var(--foreground)] outline-none focus:border-[var(--accent)]/50 transition-colors"
           />
 
           <div className="mt-4 flex gap-3">
             <button
               onClick={generateTitles}
               disabled={loading}
-              className="rounded-xl bg-blue-600 px-6 py-3 font-semibold disabled:opacity-50"
+              className="rounded-xl bg-[var(--accent)] px-6 py-3 font-display font-bold text-black hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50"
             >
               {loading ? "Generating..." : "Generate Titles"}
             </button>
@@ -119,7 +119,7 @@ export default function TitleGenerator() {
               <button
                 onClick={regenerateAll}
                 disabled={loading}
-                className="rounded-xl border border-gray-700 px-6 py-3 font-semibold hover:bg-gray-900 disabled:opacity-50"
+                className="rounded-xl border border-[var(--border-color)] px-6 py-3 font-semibold hover:bg-[var(--background)] transition-colors disabled:opacity-50"
               >
                 🔄 Regenerate All
               </button>
@@ -130,10 +130,7 @@ export default function TitleGenerator() {
         {loading && (
           <div className="mt-8 space-y-4">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div
-                key={i}
-                className="h-20 rounded-xl border border-gray-800 bg-gray-900/50 animate-pulse"
-              />
+              <div key={i} className="h-20 rounded-xl border border-[var(--border-color)] bg-[var(--surface)] animate-pulse" />
             ))}
           </div>
         )}
@@ -143,24 +140,18 @@ export default function TitleGenerator() {
             {titles.map((item, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between rounded-xl border border-gray-800 p-5"
+                className="flex items-center justify-between rounded-xl border border-[var(--border-color)] bg-[var(--surface)] p-5 transition-colors hover:border-[var(--accent)]/30"
               >
                 <div className="flex-1">
-                  <p className="text-xs text-gray-500 mb-1">
-                    🔥 Title #{index + 1}
-                  </p>
+                  <p className="text-xs text-[var(--muted)] mb-1">🔥 Title #{index + 1}</p>
 
                   {regeneratingIndex === index ? (
-                    <div className="h-5 w-2/3 rounded bg-gray-800 animate-pulse" />
+                    <div className="h-5 w-2/3 rounded bg-[var(--border-color)] animate-pulse" />
                   ) : (
                     <p className="font-medium">{item.title}</p>
                   )}
 
-                  <span
-                    className={`mt-2 inline-block rounded-full border px-3 py-1 text-xs font-semibold ${scoreColor(
-                      item.score
-                    )}`}
-                  >
+                  <span className={`mt-2 inline-block rounded-full border px-3 py-1 text-xs font-semibold ${scoreColor(item.score)}`}>
                     CTR Score: {item.score}%
                   </span>
                 </div>
@@ -170,7 +161,7 @@ export default function TitleGenerator() {
                     onClick={() => regenerateOne(index)}
                     disabled={regeneratingIndex === index}
                     title="Regenerate this title"
-                    className="rounded-lg border border-gray-700 px-3 py-2 text-sm hover:bg-gray-900 disabled:opacity-50"
+                    className="rounded-lg border border-[var(--border-color)] px-3 py-2 text-sm hover:bg-[var(--background)] transition-colors disabled:opacity-50"
                   >
                     🔄
                   </button>
@@ -178,9 +169,7 @@ export default function TitleGenerator() {
                   <button
                     onClick={() => copyTitle(item.title, index)}
                     className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
-                      copiedIndex === index
-                        ? "bg-green-600"
-                        : "bg-blue-600 hover:bg-blue-700"
+                      copiedIndex === index ? "bg-green-600 text-white" : "bg-[var(--accent)] text-black hover:bg-[var(--accent-hover)]"
                     }`}
                   >
                     {copiedIndex === index ? "✓ Copied!" : "Copy"}
