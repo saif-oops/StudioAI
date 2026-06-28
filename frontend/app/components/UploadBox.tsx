@@ -1,158 +1,73 @@
 "use client";
 
 import { useState } from "react";
+import { Upload, Sparkles } from "lucide-react";
 
 type UploadBoxProps = {
   image: string | null;
-  handleImageUpload: (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => void;
+  handleImageUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
   analyzeThumbnail: () => void;
 };
-
 
 export default function UploadBox({
   image,
   handleImageUpload,
   analyzeThumbnail,
 }: UploadBoxProps) {
-
   const [dragActive, setDragActive] = useState(false);
 
-
-  const handleDrop = (
-    event: React.DragEvent<HTMLLabelElement>
-  ) => {
-
+  const handleDrop = (event: React.DragEvent<HTMLLabelElement>) => {
     event.preventDefault();
-
     setDragActive(false);
-
-
     const file = event.dataTransfer.files[0];
-
     if (!file) return;
-
-
     const fakeEvent = {
-      target: {
-        files: [file],
-      },
+      target: { files: [file] },
     } as unknown as React.ChangeEvent<HTMLInputElement>;
-
-
     handleImageUpload(fakeEvent);
-
   };
 
-
-
   return (
-
-    <div className="mt-8 rounded-3xl border border-gray-800 bg-gray-950 p-8">
-
-
-      <h3 className="mb-6 text-xl font-semibold">
-        Upload Thumbnail
-      </h3>
-
-
+    <div className="mt-8 rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-8">
+      <h3 className="mb-6 text-xl font-display font-semibold">Upload Thumbnail</h3>
 
       {!image && (
-
         <label
           onDragOver={(e) => {
             e.preventDefault();
             setDragActive(true);
           }}
-
-          onDragLeave={() => {
-            setDragActive(false);
-          }}
-
+          onDragLeave={() => setDragActive(false)}
           onDrop={handleDrop}
-
-
-          className={`
-            flex h-64 cursor-pointer
-            flex-col items-center justify-center
-            rounded-2xl border-2 border-dashed
-            transition
-
-            ${
-              dragActive
-              ? "border-blue-500 bg-blue-500/10"
-              : "border-gray-700"
-            }
-          `}
+          className={`flex h-64 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed transition-colors ${
+            dragActive
+              ? "border-[var(--accent)] bg-[var(--accent-soft)]"
+              : "border-[var(--border-color)] hover:border-[var(--accent)]/40"
+          }`}
         >
-
-          <div className="text-5xl">
-            📤
-          </div>
-
-
-          <p className="mt-4 text-lg font-semibold">
-            Drag & Drop your thumbnail
-          </p>
-
-
-          <p className="mt-2 text-sm text-gray-400">
-            or click to browse
-          </p>
-
-
-
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            className="hidden"
-          />
-
-
+          <Upload size={40} className="text-[var(--muted)]" strokeWidth={1.5} />
+          <p className="mt-4 text-lg font-semibold">Drag & Drop your thumbnail</p>
+          <p className="mt-2 text-sm text-[var(--muted)]">or click to browse</p>
+          <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
         </label>
-
       )}
 
-
-
-
       {image && (
-
         <div className="space-y-6">
-
-
           <img
             src={image}
             alt="thumbnail preview"
-            className="max-w-lg rounded-2xl border border-gray-700"
+            className="max-w-lg rounded-xl border border-[var(--border-color)]"
           />
-
-
-
           <button
             onClick={analyzeThumbnail}
-            className="
-            rounded-xl 
-            bg-blue-600 
-            px-8 py-3
-            font-semibold
-            hover:bg-blue-700
-            transition
-            "
+            className="flex items-center gap-2 rounded-xl bg-[var(--accent)] px-8 py-3 font-display font-bold text-white hover:bg-[var(--accent-hover)] transition-colors"
           >
-            Analyze Thumbnail ✨
+            <Sparkles size={18} />
+            Analyze Thumbnail
           </button>
-
-
         </div>
-
       )}
-
-
     </div>
-
   );
-
 }
