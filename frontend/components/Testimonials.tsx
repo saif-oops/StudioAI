@@ -1,3 +1,5 @@
+import { Star } from "lucide-react";
+
 export default function Testimonials() {
   const reviews = [
     { name: "Priya M.", role: "Tech Reviewer", text: "My CTR went up since I started using the title scores. Genuinely useful.", initials: "PM" },
@@ -19,7 +21,11 @@ export default function Testimonials() {
       <div className="grid gap-6 md:grid-cols-3">
         {reviews.map((r) => (
           <div key={r.name} className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6">
-            <div className="flex text-[var(--highlight)] mb-3">★★★★★</div>
+            <div className="flex gap-1 text-[var(--highlight)] mb-3">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Star key={i} size={16} fill="currentColor" strokeWidth={0} />
+              ))}
+            </div>
             <p className="text-[var(--foreground)]">{r.text}</p>
             <div className="mt-5 flex items-center gap-3">
               <div className="h-10 w-10 rounded-full bg-[var(--accent)] flex items-center justify-center font-display font-bold text-black text-sm">

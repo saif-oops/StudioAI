@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, X, Zap, Crown, Star } from "lucide-react";
+import { Check, X, Zap, Crown, Star, Lightbulb } from "lucide-react";
 
 export default function Pricing() {
   const [yearly, setYearly] = useState(false);
@@ -16,7 +16,7 @@ export default function Pricing() {
       cta: "Start Free",
       highlighted: false,
       features: [
-        { text: "5 generations / month", included: true },
+        { text: "5 credits / month", included: true },
         { text: "Title Generator", included: true },
         { text: "Description Generator", included: true },
         { text: "Thumbnail Analyzer", included: true },
@@ -35,7 +35,7 @@ export default function Pricing() {
       cta: "Choose Pro",
       highlighted: true,
       features: [
-        { text: "60 generations / month", included: true },
+        { text: "60 credits / month", included: true },
         { text: "All 6 AI tools unlocked", included: true },
         { text: "No watermark", included: true },
         { text: "Full history (unlimited)", included: true },
@@ -54,7 +54,7 @@ export default function Pricing() {
       cta: "Choose Creator+",
       highlighted: false,
       features: [
-        { text: "Unlimited generations", included: true },
+        { text: "Unlimited credits", included: true },
         { text: "All 6 AI tools unlocked", included: true },
         { text: "No watermark", included: true },
         { text: "Full history + export", included: true },
@@ -68,7 +68,7 @@ export default function Pricing() {
 
   return (
     <section id="pricing" className="mx-auto max-w-6xl px-6 py-24">
-      <div className="text-center mb-10">
+      <div className="text-center mb-8">
         <p className="font-display text-xs font-semibold tracking-[0.25em] text-[var(--accent)] uppercase">
           Simple Pricing
         </p>
@@ -78,6 +78,11 @@ export default function Pricing() {
         <p className="mt-4 text-[var(--muted)]">
           Start free. Upgrade when you're ready to scale.
         </p>
+      </div>
+
+      <div className="mx-auto mb-12 max-w-2xl rounded-xl border border-[var(--accent)]/30 bg-[var(--accent-soft)] p-5 text-center text-sm leading-relaxed">
+        <Lightbulb size={16} className="text-[var(--accent)] inline-block mr-2 -mt-0.5" />
+        Freelancers charge <span className="font-bold text-[var(--accent)]">$15-$40</span> for a video's title, description, and script. With Saflix Pro, you get <span className="font-bold text-[var(--highlight)]">60 credits/month</span> for just <span className="font-bold text-[var(--accent)]">$12</span> that's under $0.20 per credit.
       </div>
 
       <div className="flex justify-center mb-12">
