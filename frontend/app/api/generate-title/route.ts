@@ -1,6 +1,10 @@
 export async function POST(req: Request) {
   try {
-    const { topic } = await req.json();
+    const { topic, tone } = await req.json();
+
+    const toneInstruction = tone && tone !== "Default"
+      ? ` Write the titles in a ${tone.toLowerCase()} tone/style.`
+      : "";
 
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
@@ -13,7 +17,7 @@ export async function POST(req: Request) {
         messages: [
           {
             role: "user",
-            content: `Generate 5 highly clickable YouTube titles for this topic: "${topic}".
+            content: `Generate 5 highly clickable YouTube titles for this topic: "${topic}".${toneInstruction}
 
 For each title, also give a CTR Score from 1-100 based on curiosity, emotion, specificity, and clickability.
 
@@ -35,8 +39,6 @@ Respond ONLY with valid JSON, no markdown, no extra text, in this exact format:
     }
 
     let raw = data.choices[0].message.content.trim();
-
-    // Strip markdown fences if the model adds them anyway
     raw = raw.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/```\s*$/i, "");
 
     const titles = JSON.parse(raw);
