@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { Palette } from "lucide-react";
-import Sidebar from "../components/Sidebar";
-import Header from "../components/Header";
-import UploadBox from "../components/UploadBox";
-import AnalysisResult from "../components/AnalysisResult";
-import { addHistoryItem } from "../lib/history";
+import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/Header";
+import UploadBox from "@/components/dashboard/UploadBox";
+import AnalysisResult from "@/components/dashboard/AnalysisResult";
+import { addHistoryItem } from "@/lib/history";
 
 export default function ThumbnailAnalyzer() {
   const [image, setImage] = useState<string | null>(null);
@@ -69,21 +69,21 @@ export default function ThumbnailAnalyzer() {
   };
 
   return (
-    <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)] flex">
+    <main className="min-h-screen bg-background text-foreground flex">
       <Sidebar />
 
       <section className="flex-1 p-8">
         <Header />
 
         <div className="relative">
-          <p className="font-display text-xs font-semibold tracking-[0.2em] text-[var(--accent)] uppercase">
+          <p className="font-display text-xs font-semibold tracking-[0.2em] text-accent uppercase">
             Thumbnail Analyzer
           </p>
           <h1 className="mt-2 font-display text-4xl font-bold flex items-center gap-3">
-            <Palette className="text-[var(--accent)]" size={32} />
-            Improve Your <span className="text-[var(--accent)]">Click Rate</span>
+            <Palette className="text-accent" size={32} />
+            Improve Your <span className="text-accent">Click Rate</span>
           </h1>
-          <p className="mt-2 text-[var(--muted)]">
+          <p className="mt-2 text-muted">
             Upload your thumbnail and get instant AI insights
           </p>
         </div>
@@ -95,7 +95,7 @@ export default function ThumbnailAnalyzer() {
         />
 
         {loading && (
-          <p className="mt-8 flex items-center gap-2 text-[var(--muted)]">
+          <p className="mt-8 flex items-center gap-2 text-muted">
             Analyzing thumbnail...
           </p>
         )}
