@@ -6,7 +6,7 @@ export type HistoryItem = {
   createdAt: number;
 };
 
-const STORAGE_KEY = "saflix_history";
+const STORAGE_KEY = "studioai_history";
 
 export function getHistory(): HistoryItem[] {
   if (typeof window === "undefined") return [];

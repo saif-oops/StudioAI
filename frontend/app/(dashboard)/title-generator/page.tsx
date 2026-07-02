@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { RefreshCw, Flame, Check, Star, Sparkles } from "lucide-react";
+import { RefreshCw, Flame, Check, Star, Sparkles, OctagonAlert, CircleCheckBig } from "lucide-react";
 import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
 import { addHistoryItem } from "@/lib/history";
+import { toast } from "sonner";
 
 type TitleItem = {
   title: string;
@@ -39,13 +39,23 @@ export default function TitleGenerator() {
       const data = await fetchTitles();
       if (data.success) {
         setTitles(data.titles);
+        toast.success("Generation Complete", {
+          description: "Your high-CTR titles are ready.",
+          icon: <CircleCheckBig className="text-emerald-400" size={18} />
+        });
         addHistoryItem({ tool: "title-generator", input: topic, output: data.titles });
       } else {
-        alert("Failed to generate titles");
+        toast.error("Generation Failed", {
+          description: "Failed to generate titles. Please try again.",
+          icon: <OctagonAlert className="text-red-400" size={18} />
+        });
       }
     } catch (error) {
       console.error(error);
-      alert("Something went wrong");
+      toast.error("Something went wrong", {
+        description: "An unexpected error occurred.",
+        icon: <OctagonAlert className="text-red-400" size={18} />
+      });
     }
 
     setLoading(false);
@@ -74,6 +84,10 @@ export default function TitleGenerator() {
   const copyTitle = (title: string, index: number) => {
     navigator.clipboard.writeText(title);
     setCopiedIndex(index);
+    toast.success("Copied to Clipboard", {
+      description: "The title has been copied.",
+      icon: <CircleCheckBig className="text-emerald-400" size={18} />
+    });
     setTimeout(() => setCopiedIndex(null), 1500);
   };
 
@@ -86,16 +100,11 @@ export default function TitleGenerator() {
   const bestScore = titles.length > 0 ? Math.max(...titles.map((t) => t.score)) : 0;
 
   return (
-    <main className="min-h-screen bg-background text-foreground flex">
+    <main className="min-h-screen bg-background text-foreground flex flex-col md:flex-row">
       <Sidebar />
 
-      <section className="flex-1 p-8">
-        <Header />
-
+      <section className="flex-1 p-4 md:p-8">
         <div className="relative">
-          <p className="font-display text-xs font-semibold tracking-[0.2em] text-accent uppercase">
-            Title Generator
-          </p>
           <h1 className="mt-2 font-display text-4xl font-bold">
             Titles That <span className="text-accent">Get Clicked</span>
           </h1>

@@ -1,3 +1,5 @@
+import { GoogleGenAI } from "@google/genai";
+
 export async function POST(req: Request) {
   try {
     const { topic, tone } = await req.json();
@@ -6,18 +8,9 @@ export async function POST(req: Request) {
       ? ` Write the titles in a ${tone.toLowerCase()} tone/style.`
       : "";
 
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        messages: [
-          {
-            role: "user",
-            content: `Generate 5 highly clickable YouTube titles for this topic: "${topic}".${toneInstruction}
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+
+    const prompt = `Generate 5 highly clickable YouTube titles for this topic: "${topic}".${toneInstruction}
 
 For each title, also give a CTR Score from 1-100 based on curiosity, emotion, specificity, and clickability.
 
@@ -25,20 +18,16 @@ Respond ONLY with valid JSON, no markdown, no extra text, in this exact format:
 [
   {"title": "Title text here", "score": 92},
   {"title": "Title text here", "score": 87}
-]`,
-          },
-        ],
-      }),
+]`;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash-lite",
+      contents: prompt,
     });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.error("API ERROR:", data);
-      return Response.json({ success: false, error: "Failed to generate titles" });
+    if (!response.text) {
+      throw new Error("No response from AI");
     }
-
-    let raw = data.choices[0].message.content.trim();
+    let raw = response.text.trim();
     raw = raw.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/```\s*$/i, "");
 
     const titles = JSON.parse(raw);

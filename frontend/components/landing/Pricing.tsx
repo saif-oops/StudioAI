@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Check, X, Zap, Crown, Star, Lightbulb } from "lucide-react";
+import SpotlightCard from "@/components/bits/SpotlightCard";
 
 export default function Pricing() {
   const [yearly, setYearly] = useState(false);
@@ -15,6 +16,7 @@ export default function Pricing() {
       priceYearly: 0,
       cta: "Start Free",
       highlighted: false,
+      glow: "rgba(255, 255, 255, 0.05)",
       features: [
         { text: "5 credits / month", included: true },
         { text: "Title Generator", included: true },
@@ -34,6 +36,7 @@ export default function Pricing() {
       priceYearly: 8,
       cta: "Choose Pro",
       highlighted: true,
+      glow: "rgba(255, 0, 51, 0.12)",
       features: [
         { text: "60 credits / month", included: true },
         { text: "All 6 AI tools unlocked", included: true },
@@ -53,6 +56,7 @@ export default function Pricing() {
       priceYearly: 19,
       cta: "Choose Creator+",
       highlighted: false,
+      glow: "rgba(255, 214, 0, 0.08)",
       features: [
         { text: "Unlimited credits", included: true },
         { text: "All 6 AI tools unlocked", included: true },
@@ -67,7 +71,7 @@ export default function Pricing() {
   ];
 
   return (
-    <section id="pricing" className="mx-auto max-w-6xl px-6 py-24">
+    <section id="pricing" className="mx-auto max-w-6xl px-6 py-12 md:py-20">
       <div className="text-center mb-8">
         <h2 className="mt-3 font-display text-4xl font-bold md:text-5xl">
           Plans for Every <span className="text-accent">Creator</span>
@@ -79,20 +83,20 @@ export default function Pricing() {
 
       <div className="mx-auto mb-12 max-w-2xl rounded-xl border border-accent/30 bg-accent-soft p-5 text-center text-sm leading-relaxed">
         <Lightbulb size={16} className="text-accent inline-block mr-2 -mt-0.5" />
-        Freelancers charge <span className="font-bold text-accent">$15-$40</span> for a video's title, description, and script. With Saflix Pro, you get <span className="font-bold text-highlight">60 credits/month</span> for just <span className="font-bold text-accent">$12</span> that's under $0.20 per credit.
+        Freelancers charge <span className="font-bold text-accent">$15-$40</span> for a video's title, description, and script. With StudioAI Pro, you get <span className="font-bold text-highlight">60 credits/month</span> for just <span className="font-bold text-accent">$12</span> that's under $0.20 per credit.
       </div>
 
       <div className="flex justify-center mb-12">
         <div className="inline-flex items-center rounded-full border border-border-color bg-surface p-1">
           <button
             onClick={() => setYearly(false)}
-            className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${!yearly ? "bg-accent text-white" : "text-muted"}`}
+            className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors cursor-pointer ${!yearly ? "bg-accent text-white" : "text-muted"}`}
           >
             Monthly
           </button>
           <button
             onClick={() => setYearly(true)}
-            className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${yearly ? "bg-accent text-white" : "text-muted"}`}
+            className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors cursor-pointer ${yearly ? "bg-accent text-white" : "text-muted"}`}
           >
             Yearly <span className="text-xs opacity-80">Save 33%</span>
           </button>
@@ -104,9 +108,13 @@ export default function Pricing() {
           const Icon = plan.icon;
           const price = yearly ? plan.priceYearly : plan.priceMonthly;
           return (
-            <div key={plan.name} className={`relative rounded-2xl border p-8 ${plan.highlighted ? "border-accent bg-surface" : "border-border-color bg-surface"}`}>
+            <SpotlightCard
+              key={plan.name}
+              spotlightColor={plan.glow}
+              className={`relative rounded-2xl border p-8 ${plan.highlighted ? "border-accent bg-surface" : "border-border-color bg-surface"}`}
+            >
               {plan.highlighted && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-accent px-4 py-1 text-xs font-bold text-white">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-accent px-4 py-1 text-xs font-bold text-white z-20">
                   Most Popular
                 </span>
               )}
@@ -132,7 +140,7 @@ export default function Pricing() {
               <a href="/dashboard" className={`mt-8 block w-full rounded-xl px-6 py-3 text-center font-semibold transition-colors ${plan.highlighted ? "bg-accent text-white hover:bg-accent-hover" : "border border-border-color hover:bg-background"}`}>
                 {plan.cta}
               </a>
-            </div>
+            </SpotlightCard>
           );
         })}
       </div>

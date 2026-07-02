@@ -28,7 +28,7 @@ export default function UploadBox({
   };
 
   return (
-    <div className="mt-8 rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-8">
+    <div className="mt-8 rounded-2xl border border-border-color bg-surface p-8">
       <h3 className="mb-6 text-xl font-display font-semibold">Upload Thumbnail</h3>
 
       {!image && (
@@ -41,13 +41,13 @@ export default function UploadBox({
           onDrop={handleDrop}
           className={`flex h-64 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed transition-colors ${
             dragActive
-              ? "border-[var(--accent)] bg-[var(--accent-soft)]"
-              : "border-[var(--border-color)] hover:border-[var(--accent)]/40"
+              ? "border-accent bg-accent-soft"
+              : "border-border-color hover:border-accent/40"
           }`}
         >
-          <Upload size={40} className="text-[var(--muted)]" strokeWidth={1.5} />
+          <Upload size={40} className="text-muted" strokeWidth={1.5} />
           <p className="mt-4 text-lg font-semibold">Drag & Drop your thumbnail</p>
-          <p className="mt-2 text-sm text-[var(--muted)]">or click to browse</p>
+          <p className="mt-2 text-sm text-muted">or click to browse</p>
           <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
         </label>
       )}
@@ -57,11 +57,11 @@ export default function UploadBox({
           <img
             src={image}
             alt="thumbnail preview"
-            className="max-w-lg rounded-xl border border-[var(--border-color)]"
+            className="max-w-lg rounded-xl border border-border-color"
           />
           <button
             onClick={analyzeThumbnail}
-            className="flex items-center gap-2 rounded-xl bg-[var(--accent)] px-8 py-3 font-display font-bold text-white hover:bg-[var(--accent-hover)] transition-colors"
+            className="flex items-center gap-2 rounded-xl bg-accent px-8 py-3 font-display font-bold text-white hover:bg-accent-hover transition-colors"
           >
             <Sparkles size={18} />
             Analyze Thumbnail
