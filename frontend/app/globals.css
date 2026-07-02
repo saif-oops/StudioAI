@@ -20,9 +20,14 @@
   --color-muted: var(--muted);
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
   --color-highlight: var(--highlight);
   --font-display: var(--font-display);
   --font-body: var(--font-body);
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {

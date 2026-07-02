@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { ImageIcon, Upload, Sparkles, Download, X } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 

@@ -13,13 +13,10 @@ export default function Features() {
   return (
     <section id="features" className="mx-auto max-w-6xl px-6 py-24">
       <div className="text-center mb-14">
-        <p className="font-display text-xs font-semibold tracking-[0.25em] text-[var(--accent)] uppercase">
-          Everything You Need
-        </p>
         <h2 className="mt-3 font-display text-4xl font-bold md:text-5xl">
-          One Studio. <span className="text-[var(--accent)]">Six Tools.</span>
+          One Studio. <span className="text-accent">Six Tools.</span>
         </h2>
-        <p className="mt-4 text-[var(--muted)] max-w-xl mx-auto">
+        <p className="mt-4 text-muted max-w-xl mx-auto">
           Stop switching between five different apps to make one video.
         </p>
       </div>
@@ -30,7 +27,7 @@ export default function Features() {
           return (
             <div
               key={f.title}
-              className="group rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-6 transition-all hover:border-[var(--accent)]/40 hover:-translate-y-1"
+              className="group rounded-2xl border border-border-color bg-surface p-6 transition-all hover:border-accent/40 hover:-translate-y-1"
             >
               <div
                 className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl"
@@ -39,7 +36,7 @@ export default function Features() {
                 <Icon size={22} style={{ color: f.color }} strokeWidth={2} />
               </div>
               <h3 className="mb-2 font-display text-lg font-bold">{f.title}</h3>
-              <p className="text-sm text-[var(--muted)]">{f.desc}</p>
+              <p className="text-sm text-muted">{f.desc}</p>
             </div>
           );
         })}

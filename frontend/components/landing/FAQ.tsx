@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -15,29 +16,36 @@ export default function FAQ() {
   return (
     <section id="faq" className="mx-auto max-w-3xl px-6 py-24">
       <div className="text-center mb-12">
-        <p className="font-display text-xs font-semibold tracking-[0.25em] text-[var(--accent)] uppercase">
-          Got Questions?
-        </p>
+
         <h2 className="mt-3 font-display text-4xl font-bold">
-          Frequently Asked <span className="text-[var(--accent)]">Questions</span>
+          Frequently Asked <span className="text-accent">Questions</span>
         </h2>
       </div>
 
       <div className="space-y-3">
         {faqs.map((faq, i) => (
-          <div key={i} className="rounded-xl border border-[var(--border-color)] bg-[var(--surface)] overflow-hidden">
+          <div key={i} className="rounded-xl border border-border-color bg-surface overflow-hidden">
             <button
               onClick={() => setOpenIndex(openIndex === i ? null : i)}
-              className="w-full flex items-center justify-between px-5 py-4 text-left font-medium"
+              className="w-full flex items-center justify-between px-5 py-4 text-left font-medium cursor-pointer"
             >
               {faq.q}
-              <span className={`text-[var(--accent)] transition-transform ${openIndex === i ? "rotate-45" : ""}`}>
+              <span className={`text-accent transition-transform duration-300 ${openIndex === i ? "rotate-45" : ""}`}>
                 +
               </span>
             </button>
-            {openIndex === i && (
-              <p className="px-5 pb-4 text-sm text-[var(--muted)]">{faq.a}</p>
-            )}
+            <AnimatePresence initial={false}>
+              {openIndex === i && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2, ease: "easeInOut" }}
+                >
+                  <p className="px-5 pb-4 text-sm text-muted leading-relaxed">{faq.a}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         ))}
       </div>

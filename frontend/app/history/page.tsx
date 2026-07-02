@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Sidebar from "../components/Sidebar";
-import Header from "../components/Header";
-import { getHistory, deleteHistoryItem, clearHistory, HistoryItem } from "../lib/history";
+import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/Header";
+import { getHistory, deleteHistoryItem, clearHistory, HistoryItem } from "@/lib/history";
 
 export default function HistoryPage() {
   const [history, setHistory] = useState<HistoryItem[]>([]);

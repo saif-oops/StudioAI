@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Sidebar from "../components/Sidebar";
-import Header from "../components/Header";
-import { addHistoryItem } from "../lib/history";
+import Sidebar from "@/components/dashboard/Sidebar";
+import Header from "@/components/dashboard/Header";
+import { addHistoryItem } from "@/lib/history";
 
 export default function ScriptGenerator() {
   const [topic, setTopic] = useState("");
