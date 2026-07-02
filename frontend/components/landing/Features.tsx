@@ -1,4 +1,5 @@
 import { PenLine, Palette, ImageIcon, FileText, Clapperboard, History } from "lucide-react";
+import SpotlightCard from "@/components/bits/SpotlightCard";
 
 export default function Features() {
   const features = [
@@ -11,7 +12,7 @@ export default function Features() {
   ];
 
   return (
-    <section id="features" className="mx-auto max-w-6xl px-6 py-24">
+    <section id="features" className="mx-auto max-w-6xl px-6 py-12 md:py-20">
       <div className="text-center mb-14">
         <h2 className="mt-3 font-display text-4xl font-bold md:text-5xl">
           One Studio. <span className="text-accent">Six Tools.</span>
@@ -25,9 +26,10 @@ export default function Features() {
         {features.map((f) => {
           const Icon = f.icon;
           return (
-            <div
+            <SpotlightCard
               key={f.title}
-              className="group rounded-2xl border border-border-color bg-surface p-6 transition-all hover:border-accent/40 hover:-translate-y-1"
+              spotlightColor={`${f.color}18`}
+              className="group rounded-2xl border border-border-color bg-surface p-6 transition-all hover:border-accent/40"
             >
               <div
                 className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl"
@@ -37,7 +39,7 @@ export default function Features() {
               </div>
               <h3 className="mb-2 font-display text-lg font-bold">{f.title}</h3>
               <p className="text-sm text-muted">{f.desc}</p>
-            </div>
+            </SpotlightCard>
           );
         })}
       </div>

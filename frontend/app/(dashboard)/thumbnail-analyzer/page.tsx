@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Palette } from "lucide-react";
+import { Palette, OctagonAlert, CircleCheckBig } from "lucide-react";
 import Sidebar from "@/components/dashboard/Sidebar";
-import Header from "@/components/dashboard/Header";
 import UploadBox from "@/components/dashboard/UploadBox";
 import AnalysisResult from "@/components/dashboard/AnalysisResult";
 import { addHistoryItem } from "@/lib/history";
+import { toast } from "sonner";
 
 export default function ThumbnailAnalyzer() {
   const [image, setImage] = useState<string | null>(null);
@@ -51,6 +51,10 @@ export default function ThumbnailAnalyzer() {
       if (data.success) {
         setAnalysis(data.analysis);
         setAnalyzed(true);
+        toast.success("Analysis Complete", {
+          description: "Your thumbnail CTR insights are ready.",
+          icon: <CircleCheckBig className="text-emerald-400" size={18} />
+        });
 
         addHistoryItem({
           tool: "thumbnail-analyzer",
@@ -58,27 +62,28 @@ export default function ThumbnailAnalyzer() {
           output: data.analysis,
         });
       } else {
-        alert("Failed to analyze thumbnail");
+        toast.error("Analysis Failed", {
+          description: "Failed to analyze thumbnail. Please try again.",
+          icon: <OctagonAlert className="text-red-400" size={18} />
+        });
       }
     } catch (error) {
       console.error(error);
-      alert("Something went wrong");
+      toast.error("Something went wrong", {
+        description: "An unexpected error occurred.",
+        icon: <OctagonAlert className="text-red-400" size={18} />
+      });
     }
 
     setLoading(false);
   };
 
   return (
-    <main className="min-h-screen bg-background text-foreground flex">
+    <main className="min-h-screen bg-background text-foreground flex flex-col md:flex-row">
       <Sidebar />
 
-      <section className="flex-1 p-8">
-        <Header />
-
+      <section className="flex-1 p-4 md:p-8">
         <div className="relative">
-          <p className="font-display text-xs font-semibold tracking-[0.2em] text-accent uppercase">
-            Thumbnail Analyzer
-          </p>
           <h1 className="mt-2 font-display text-4xl font-bold flex items-center gap-3">
             <Palette className="text-accent" size={32} />
             Improve Your <span className="text-accent">Click Rate</span>

@@ -13,33 +13,33 @@ export default function AnalysisResult({ analysis }: AnalysisResultProps) {
     <div className="mt-10">
       <div className="mb-6 flex items-center justify-between">
         <h2 className="font-display text-2xl font-bold">AI Analysis Result</h2>
-        <span className="flex items-center gap-1.5 rounded-full bg-[var(--accent-soft)] px-4 py-2 text-sm text-[var(--accent)]">
+        <span className="flex items-center gap-1.5 rounded-full bg-accent-soft px-4 py-2 text-sm text-accent">
           <Sparkles size={14} />
           AI Powered
         </span>
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
-        <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-8 transition-colors hover:border-[var(--accent)]/40">
-          <p className="text-[var(--muted)]">CTR Score</p>
+        <div className="rounded-2xl border border-border-color bg-surface p-8 transition-colors hover:border-accent/40">
+          <p className="text-muted">CTR Score</p>
           <div className="mt-6 flex justify-center">
-            <div className="flex h-40 w-40 items-center justify-center rounded-full border-[10px] border-[var(--accent)]">
+            <div className="flex h-40 w-40 items-center justify-center rounded-full border-10 border-accent">
               <div className="text-center">
                 <p className="font-display text-5xl font-bold">{analysis.score}</p>
-                <p className="text-[var(--muted)]">/100</p>
+                <p className="text-muted">/100</p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-8 transition-colors hover:border-green-500/40">
+        <div className="rounded-2xl border border-border-color bg-surface p-8 transition-colors hover:border-green-500/40">
           <h3 className="mb-5 flex items-center gap-2 font-display text-xl font-bold">
             <Rocket size={20} className="text-green-400" />
             Strengths
           </h3>
           <div className="space-y-3">
             {analysis.strengths.map((item) => (
-              <div key={item} className="flex items-start gap-2 rounded-xl bg-[var(--background)] p-3 text-sm text-[var(--foreground)]">
+              <div key={item} className="flex items-start gap-2 rounded-xl bg-background p-3 text-sm text-foreground">
                 <Check size={16} className="text-green-400 shrink-0 mt-0.5" />
                 {item}
               </div>
@@ -47,15 +47,15 @@ export default function AnalysisResult({ analysis }: AnalysisResultProps) {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-8 transition-colors hover:border-[var(--highlight)]/40">
+        <div className="rounded-2xl border border-border-color bg-surface p-8 transition-colors hover:border-highlight/40">
           <h3 className="mb-5 flex items-center gap-2 font-display text-xl font-bold">
-            <Zap size={20} className="text-[var(--highlight)]" />
+            <Zap size={20} className="text-highlight" />
             Improvements
           </h3>
           <div className="space-y-3">
             {analysis.improvements.map((item) => (
-              <div key={item} className="flex items-start gap-2 rounded-xl bg-[var(--background)] p-3 text-sm text-[var(--foreground)]">
-                <span className="text-[var(--highlight)] shrink-0">•</span>
+              <div key={item} className="flex items-start gap-2 rounded-xl bg-background p-3 text-sm text-foreground">
+                <span className="text-highlight shrink-0">•</span>
                 {item}
               </div>
             ))}

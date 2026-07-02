@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Hero() {
-  const words = ["Get Watched", "Go Viral", "Get Clicked", "Stand Out"];
+  const words = ["Get Watched", "Goes Viral", "Get Clicked", "Stand Out"];
   const badges = ["6 AI Tools, One Studio", "Titles Scored by AI", "From Idea to Upload", "Built for Creators"];
 
   const [index, setIndex] = useState(0);
@@ -65,7 +65,7 @@ export default function Hero() {
         }}
       />
 
-      <div className="relative z-10 mx-auto flex min-h-[85vh] max-w-5xl flex-col items-center justify-center px-6 text-center">
+      <div className="relative z-10 mx-auto flex min-h-[calc(100vh-76px)] max-w-5xl flex-col items-center justify-center px-6 text-center">
         <div
           className="mb-6 inline-flex items-center gap-2.5 rounded-full px-3.5 py-1.5 text-sm font-medium border border-accent/25 bg-accent/5 backdrop-blur-md shadow-[0_0_12px_rgba(255,0,51,0.15)]"
         >
@@ -106,27 +106,38 @@ export default function Hero() {
           The all-in-one AI studio for YouTube creators. Generate titles, analyze thumbnails, write scripts, and grow faster — all in one place.
         </p>
 
-        <div className="mt-6 flex items-center gap-3">
-          <div className="flex">
-            {creatorImages.map((src, i) => (
+        <div className="mt-10 flex flex-col sm:flex-row items-center gap-3 text-center sm:text-left">
+          <div className="flex pl-2">
+            {[1, 2, 3, 4].map((i) => (
               <img
                 key={i}
-                src={src}
+                src={`https://images.unsplash.com/photo-${
+                  i === 1 ? "1534528741775-53994a69daeb" :
+                  i === 2 ? "1507003211169-0a1dd7228f2d" :
+                  i === 3 ? "1494790108377-be9c29b29330" :
+                  "1500648767791-00dcc994a43e"
+                }?auto=format&fit=crop&w=120&h=120&q=80`}
                 alt={`Creator ${i + 1}`}
                 className="h-9 w-9 -ml-2 first:ml-0 rounded-full border-2 border-background object-cover bg-surface"
               />
             ))}
           </div>
-          <p className="text-sm text-muted">
-            <span className="font-bold text-accent">500+</span> creators already growing with Saflix
+          <p className="text-sm text-muted text-center sm:text-left">
+            <span className="font-bold text-accent">500+</span> creators already growing with StudioAI
           </p>
         </div>
 
-        <div className="mt-10 flex gap-4">
-          <a href="/dashboard" className="rounded-xl bg-accent px-8 py-4 font-display font-bold text-white hover:bg-accent-hover transition-colors">
-            Start Free →
+        <div className="mt-10 flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center">
+          <a
+            href="/dashboard"
+            className="rounded-xl bg-accent px-8 py-4 font-display font-bold text-white hover:bg-accent-hover transition-colors text-center whitespace-nowrap flex items-center justify-center gap-1"
+          >
+            Start Free <span>→</span>
           </a>
-          <a href="#how-it-works" className="rounded-xl border border-border-color px-8 py-4 font-medium hover:bg-surface transition-colors">
+          <a
+            href="#how-it-works"
+            className="rounded-xl border border-border-color px-8 py-4 font-medium hover:bg-surface transition-colors text-center whitespace-nowrap flex items-center justify-center"
+          >
             See How It Works
           </a>
         </div>

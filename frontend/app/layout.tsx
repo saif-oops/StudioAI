@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Inter } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const geist = Geist({
@@ -14,8 +15,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Saflix AI Studio",
+  title: "StudioAI",
   description: "All-in-one AI toolkit for YouTube creators",
+  icons: {
+    icon: "/images/favicon.ico",
+  },
 };
 
 export default function RootLayout({
@@ -28,7 +32,10 @@ export default function RootLayout({
       lang="en"
       className={`${geist.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <Toaster theme="dark" closeButton richColors />
+      </body>
     </html>
   );
 }

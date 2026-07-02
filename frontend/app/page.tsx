@@ -6,6 +6,7 @@ import HowItWorks from "@/components/landing/HowItWorks";
 import Testimonials from "@/components/landing/Testimonials";
 import Pricing from "@/components/landing/Pricing";
 import FAQ from "@/components/landing/FAQ";
+import Footer from "@/components/landing/Footer";
 import CursorGlow from "@/components/landing/CursorGlow";
 
 export default function Home() {
@@ -20,6 +21,7 @@ export default function Home() {
       <Testimonials />
       <Pricing />
       <FAQ />
+      <Footer />
     </main>
   );
 }

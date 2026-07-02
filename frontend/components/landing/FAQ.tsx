@@ -7,14 +7,14 @@ export default function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   const faqs = [
-    { q: "What is Saflix AI Studio?", a: "Saflix is an all-in-one AI toolkit for YouTube creators generate titles, analyze and create thumbnails, write descriptions, tags, and scripts, all in one dashboard." },
+    { q: "What is StudioAI?", a: "StudioAI is an all-in-one AI toolkit for YouTube creators. Generate titles, analyze and create thumbnails, write descriptions, tags, and scripts, all in one dashboard." },
     { q: "Is it free to use?", a: "Yes, the core tools are free to use. Some advanced features may require a paid plan as we grow." },
     { q: "Do I need design skills for the thumbnail tools?", a: "No. Just upload a photo and a title, and the AI handles the rest." },
     { q: "Can I save my generated content?", a: "Yes, every title, description, and script you generate is saved automatically in your History tab." },
   ];
 
   return (
-    <section id="faq" className="mx-auto max-w-3xl px-6 py-24">
+    <section id="faq" className="mx-auto max-w-3xl px-6 py-12 md:py-20">
       <div className="text-center mb-12">
 
         <h2 className="mt-3 font-display text-4xl font-bold">
