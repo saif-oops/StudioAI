@@ -1,6 +1,6 @@
 export type HistoryItem = {
   id: string;
-  tool: "title-generator" | "thumbnail-analyzer" | "description-generator" | "script-generator" | "thumbnail-generator";
+  tool: "title-generator" | "thumbnail-analyzer" | "description-generator" | "script-generator" | "thumbnail-generator" | "ideas-generator" | "tag-generator";
   input: string;
   output: any;
   createdAt: number;

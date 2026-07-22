@@ -18,10 +18,14 @@ import {
   X,
   Zap,
   ChevronRight,
+  Lightbulb,
+  Tags,
 } from "lucide-react";
 
 const menuItems = [
   { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
+  { name: "Video Ideas", icon: Lightbulb, path: "/ideas-generator" },
+  { name: "Tag Generator", icon: Tags, path: "/tag-generator" },
   { name: "Thumbnail Analyzer", icon: Palette, path: "/thumbnail-analyzer" },
   { name: "Thumbnail Generator", icon: ImageIcon, path: "/thumbnail-generator" },
   { name: "Title Generator", icon: PenLine, path: "/title-generator" },
@@ -109,7 +113,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
         <p className="px-3.5 mb-2 text-[10px] font-semibold uppercase tracking-widest text-muted/60">
           Tools
         </p>
-        {menuItems.slice(0, 6).map((item) => (
+        {menuItems.slice(0, 8).map((item) => (
           <NavItem
             key={item.path}
             item={item}
@@ -121,7 +125,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
         <p className="px-3.5 mt-5 mb-2 text-[10px] font-semibold uppercase tracking-widest text-muted/60">
           Account
         </p>
-        {menuItems.slice(6).map((item) => (
+        {menuItems.slice(8).map((item) => (
           <NavItem
             key={item.path}
             item={item}

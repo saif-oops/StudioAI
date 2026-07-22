@@ -1,148 +1,90 @@
 "use client";
 
-import { useState } from "react";
-import { Check, X, Zap, Crown, Star, Lightbulb } from "lucide-react";
-import SpotlightCard from "@/components/bits/SpotlightCard";
+import { motion } from "framer-motion";
+import { Check } from "lucide-react";
 
 export default function Pricing() {
-  const [yearly, setYearly] = useState(false);
-
-  const plans = [
-    {
-      icon: Zap,
-      name: "Free",
-      desc: "Try it out, no card needed",
-      priceMonthly: 0,
-      priceYearly: 0,
-      cta: "Start Free",
-      highlighted: false,
-      glow: "rgba(255, 255, 255, 0.05)",
-      features: [
-        { text: "5 credits / month", included: true },
-        { text: "Title Generator", included: true },
-        { text: "Description Generator", included: true },
-        { text: "Thumbnail Analyzer", included: true },
-        { text: "Watermark on thumbnails", included: true },
-        { text: "Script Generator", included: false },
-        { text: "Thumbnail Generator", included: false },
-        { text: "Full history", included: false },
-      ],
-    },
-    {
-      icon: Star,
-      name: "Pro",
-      desc: "For creators posting weekly",
-      priceMonthly: 12,
-      priceYearly: 8,
-      cta: "Choose Pro",
-      highlighted: true,
-      glow: "rgba(255, 0, 51, 0.12)",
-      features: [
-        { text: "60 credits / month", included: true },
-        { text: "All 6 AI tools unlocked", included: true },
-        { text: "No watermark", included: true },
-        { text: "Full history (unlimited)", included: true },
-        { text: "CTR score analytics", included: true },
-        { text: "Priority generation speed", included: true },
-        { text: "API access", included: false },
-        { text: "Dedicated support", included: false },
-      ],
-    },
-    {
-      icon: Crown,
-      name: "Creator+",
-      desc: "For studios and teams",
-      priceMonthly: 29,
-      priceYearly: 19,
-      cta: "Choose Creator+",
-      highlighted: false,
-      glow: "rgba(255, 214, 0, 0.08)",
-      features: [
-        { text: "Unlimited credits", included: true },
-        { text: "All 6 AI tools unlocked", included: true },
-        { text: "No watermark", included: true },
-        { text: "Full history + export", included: true },
-        { text: "CTR score analytics", included: true },
-        { text: "Priority generation speed", included: true },
-        { text: "Early access to new tools", included: true },
-        { text: "Dedicated support", included: true },
-      ],
-    },
-  ];
-
   return (
-    <section id="pricing" className="mx-auto max-w-6xl px-6 py-12 md:py-20">
-      <div className="text-center mb-8">
-        <h2 className="mt-3 font-display text-4xl font-bold md:text-5xl">
-          Plans for Every <span className="text-accent">Creator</span>
-        </h2>
-        <p className="mt-4 text-muted">
-          Start free. Upgrade when you're ready to scale.
-        </p>
-      </div>
-
-      <div className="mx-auto mb-12 max-w-2xl rounded-xl border border-accent/30 bg-accent-soft p-5 text-center text-sm leading-relaxed">
-        <Lightbulb size={16} className="text-accent inline-block mr-2 -mt-0.5" />
-        Freelancers charge <span className="font-bold text-accent">$15-$40</span> for a video's title, description, and script. With StudioAI Pro, you get <span className="font-bold text-highlight">60 credits/month</span> for just <span className="font-bold text-accent">$12</span> that's under $0.20 per credit.
-      </div>
-
-      <div className="flex justify-center mb-12">
-        <div className="inline-flex items-center rounded-full border border-border-color bg-surface p-1">
-          <button
-            onClick={() => setYearly(false)}
-            className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors cursor-pointer ${!yearly ? "bg-accent text-white" : "text-muted"}`}
-          >
-            Monthly
-          </button>
-          <button
-            onClick={() => setYearly(true)}
-            className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors cursor-pointer ${yearly ? "bg-accent text-white" : "text-muted"}`}
-          >
-            Yearly <span className="text-xs opacity-80">Save 33%</span>
-          </button>
+    <section id="pricing" className="py-24 relative overflow-hidden bg-background">
+      <div className="absolute inset-0 bg-surface/30" />
+      <div className="mx-auto max-w-5xl px-6 relative z-10">
+        <div className="text-center mb-16">
+          <h2 className="font-display text-3xl font-bold md:text-5xl mb-4">
+            Simple, transparent <span className="gradient-text">pricing</span>
+          </h2>
+          <p className="text-muted max-w-2xl mx-auto">
+            Start for free, upgrade when you need more power.
+          </p>
         </div>
-      </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        {plans.map((plan) => {
-          const Icon = plan.icon;
-          const price = yearly ? plan.priceYearly : plan.priceMonthly;
-          return (
-            <SpotlightCard
-              key={plan.name}
-              spotlightColor={plan.glow}
-              className={`relative rounded-2xl border p-8 ${plan.highlighted ? "border-accent bg-surface" : "border-border-color bg-surface"}`}
-            >
-              {plan.highlighted && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-accent px-4 py-1 text-xs font-bold text-white z-20">
-                  Most Popular
-                </span>
-              )}
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          {/* Free Tier */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="glass-card-surface rounded-3xl p-8 border border-border-color flex flex-col"
+          >
+            <h3 className="text-xl font-bold text-foreground mb-2">Creator Basic</h3>
+            <div className="flex items-baseline gap-1 mb-6">
+              <span className="text-4xl font-display font-bold">$0</span>
+              <span className="text-muted text-sm">/month</span>
+            </div>
+            <p className="text-sm text-muted mb-8 pb-8 border-b border-border-color">
+              Perfect for getting started and testing the tools.
+            </p>
+            <ul className="space-y-4 mb-8 flex-1">
+              {["150 AI Credits per month", "Basic Title Generation", "Standard Thumbnail Analysis", "5 Video Scripts per month"].map((feat, i) => (
+                <li key={i} className="flex items-center gap-3 text-sm text-muted-foreground">
+                  <div className="h-5 w-5 rounded-full bg-surface flex items-center justify-center text-foreground">
+                    <Check size={12} />
+                  </div>
+                  {feat}
+                </li>
+              ))}
+            </ul>
+            <button className="w-full rounded-xl border border-border-color bg-surface py-3.5 text-sm font-semibold hover:bg-surface-hover transition-colors">
+              Get Started Free
+            </button>
+          </motion.div>
 
-              <Icon size={22} className="text-accent" strokeWidth={2} />
-              <h3 className="mt-4 font-display text-2xl font-bold">{plan.name}</h3>
-              <p className="mt-1 text-sm text-muted">{plan.desc}</p>
-
-              <div className="mt-6 flex items-baseline gap-1">
-                <span className="font-display text-4xl font-bold">${price}</span>
-                <span className="text-muted text-sm">/mo</span>
-              </div>
-
-              <ul className="mt-8 space-y-3">
-                {plan.features.map((f) => (
-                  <li key={f.text} className="flex items-center gap-2 text-sm">
-                    {f.included ? <Check size={16} className="text-accent shrink-0" /> : <X size={16} className="text-muted/40 shrink-0" />}
-                    <span className={f.included ? "" : "text-muted/50"}>{f.text}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <a href="/dashboard" className={`mt-8 block w-full rounded-xl px-6 py-3 text-center font-semibold transition-colors ${plan.highlighted ? "bg-accent text-white hover:bg-accent-hover" : "border border-border-color hover:bg-background"}`}>
-                {plan.cta}
-              </a>
-            </SpotlightCard>
-          );
-        })}
+          {/* Pro Tier */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="relative rounded-3xl p-8 border border-accent/30 bg-accent/5 flex flex-col"
+          >
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent px-4 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+              Most Popular
+            </div>
+            <h3 className="text-xl font-bold text-foreground mb-2 flex items-center gap-2">
+              Pro Creator
+              <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
+            </h3>
+            <div className="flex items-baseline gap-1 mb-6">
+              <span className="text-4xl font-display font-bold text-accent">$19</span>
+              <span className="text-muted text-sm">/month</span>
+            </div>
+            <p className="text-sm text-muted mb-8 pb-8 border-b border-border-color">
+              Everything you need to scale your channel fast.
+            </p>
+            <ul className="space-y-4 mb-8 flex-1">
+              {["Unlimited AI Credits", "Advanced Tag Generator", "Priority Video Ideas", "Unlimited Script Generation", "High-res Thumbnail Gen"].map((feat, i) => (
+                <li key={i} className="flex items-center gap-3 text-sm font-medium text-foreground">
+                  <div className="h-5 w-5 rounded-full bg-accent/20 flex items-center justify-center text-accent">
+                    <Check size={12} />
+                  </div>
+                  {feat}
+                </li>
+              ))}
+            </ul>
+            <button className="btn-primary w-full py-3.5 text-sm">
+              Upgrade to Pro
+            </button>
+          </motion.div>
+        </div>
       </div>
     </section>
   );

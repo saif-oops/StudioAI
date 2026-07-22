@@ -1,47 +1,86 @@
-import { PenLine, Palette, ImageIcon, FileText, Clapperboard, History } from "lucide-react";
-import SpotlightCard from "@/components/bits/SpotlightCard";
+"use client";
+
+import { motion } from "framer-motion";
+import { Lightbulb, Tags, Palette, Image as ImageIcon, FileText, Clapperboard } from "lucide-react";
+
+const features = [
+  {
+    icon: Lightbulb,
+    title: "Video Ideas",
+    desc: "Never run out of content. Get highly viral video concepts tailored to your channel's niche.",
+    color: "text-yellow-400",
+    bg: "bg-yellow-400/10",
+  },
+  {
+    icon: PenLine,
+    title: "Title Generator",
+    desc: "Generate highly clickable titles optimized for curiosity, emotion, and maximum CTR.",
+    color: "text-accent",
+    bg: "bg-accent/10",
+  },
+  {
+    icon: Tags,
+    title: "SEO Tags",
+    desc: "Discover high-volume, low-competition keywords to rank your videos higher in search.",
+    color: "text-teal-400",
+    bg: "bg-teal-400/10",
+  },
+  {
+    icon: Palette,
+    title: "Thumbnail Analyzer",
+    desc: "Get an AI prediction of your thumbnail's click-through rate before you even publish.",
+    color: "text-blue-400",
+    bg: "bg-blue-400/10",
+  },
+  {
+    icon: FileText,
+    title: "Smart Descriptions",
+    desc: "Write SEO-optimized descriptions with timestamps and hashtags in seconds.",
+    color: "text-purple-400",
+    bg: "bg-purple-400/10",
+  },
+  {
+    icon: Clapperboard,
+    title: "Script Writer",
+    desc: "Generate full video scripts with hooks, engaging body content, and strong calls to action.",
+    color: "text-emerald-400",
+    bg: "bg-emerald-400/10",
+  },
+];
+
+import { PenLine } from "lucide-react";
 
 export default function Features() {
-  const features = [
-    { icon: PenLine, title: "Title Generator", desc: "Generate viral, high-CTR titles scored by AI.", color: "#3B82F6" },
-    { icon: Palette, title: "Thumbnail Analyzer", desc: "Get instant feedback on contrast, text, and emotion.", color: "#10B981" },
-    { icon: ImageIcon, title: "Thumbnail Generator", desc: "Upload your photo, AI creates a click-worthy thumbnail.", color: "#FF0033" },
-    { icon: FileText, title: "Description Generator", desc: "SEO-friendly descriptions and tags in seconds.", color: "#A855F7" },
-    { icon: Clapperboard, title: "Script Generator", desc: "Hooks and outlines that keep viewers watching.", color: "#FFD600" },
-    { icon: History, title: "History", desc: "All your generated content saved in one place.", color: "#8B8B8E" },
-  ];
-
   return (
-    <section id="features" className="mx-auto max-w-6xl px-6 py-12 md:py-20">
-      <div className="text-center mb-14">
-        <h2 className="mt-3 font-display text-4xl font-bold md:text-5xl">
-          One Studio. <span className="text-accent">Six Tools.</span>
-        </h2>
-        <p className="mt-4 text-muted max-w-xl mx-auto">
-          Stop switching between five different apps to make one video.
-        </p>
-      </div>
+    <section id="features" className="py-24 relative overflow-hidden">
+      <div className="mx-auto max-w-7xl px-6 relative z-10">
+        <div className="text-center mb-16">
+          <h2 className="font-display text-3xl font-bold md:text-5xl mb-4">
+            Everything you need to <span className="gradient-text">grow</span>
+          </h2>
+          <p className="text-muted max-w-2xl mx-auto">
+            Stop guessing what works. Use AI to optimize every part of your video creation process.
+          </p>
+        </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {features.map((f) => {
-          const Icon = f.icon;
-          return (
-            <SpotlightCard
-              key={f.title}
-              spotlightColor={`${f.color}18`}
-              className="group rounded-2xl border border-border-color bg-surface p-6 transition-all hover:border-accent/40"
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {features.map((feat, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.1 }}
+              className="glass-card-surface rounded-2xl p-6 group transition-all hover:-translate-y-1 hover:border-accent/40"
             >
-              <div
-                className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl"
-                style={{ backgroundColor: `${f.color}1a` }}
-              >
-                <Icon size={22} style={{ color: f.color }} strokeWidth={2} />
+              <div className={`h-12 w-12 rounded-xl flex items-center justify-center mb-5 transition-colors ${feat.bg} ${feat.color}`}>
+                <feat.icon size={24} />
               </div>
-              <h3 className="mb-2 font-display text-lg font-bold">{f.title}</h3>
-              <p className="text-sm text-muted">{f.desc}</p>
-            </SpotlightCard>
-          );
-        })}
+              <h3 className="text-xl font-bold text-foreground mb-2">{feat.title}</h3>
+              <p className="text-muted leading-relaxed text-sm">{feat.desc}</p>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   );
