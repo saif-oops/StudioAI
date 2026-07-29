@@ -1,89 +1,139 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check } from "lucide-react";
+import { Check, Sparkles } from "lucide-react";
+import Link from "next/link";
 
 export default function Pricing() {
-  return (
-    <section id="pricing" className="py-24 relative overflow-hidden bg-background">
-      <div className="absolute inset-0 bg-surface/30" />
-      <div className="mx-auto max-w-5xl px-6 relative z-10">
-        <div className="text-center mb-16">
-          <h2 className="font-display text-3xl font-bold md:text-5xl mb-4">
-            Simple, transparent <span className="gradient-text">pricing</span>
-          </h2>
-          <p className="text-muted max-w-2xl mx-auto">
-            Start for free, upgrade when you need more power.
-          </p>
-        </div>
+  const plans = [
+    {
+      name: "Starter",
+      description: "Perfect for testing the waters and exploring AI.",
+      price: "Free",
+      period: "",
+      features: [
+        "3 Video Packs / month",
+        "5 Shorts Scripts / month",
+        "Title & Description Generators",
+        "Standard PDF Exports",
+        "Community Support",
+      ],
+      cta: "Start Free",
+      highlight: false,
+    },
+    {
+      name: "Pro Creator",
+      description: "For creators who want to go viral consistently.",
+      price: "$29",
+      period: "/month",
+      features: [
+        "Unlimited Video Packs",
+        "Unlimited Shorts & Hooks",
+        "Full Trend Radar Access",
+        "YouTube Feed Simulator",
+        "Priority Generation Speed",
+        "Premium PDF Blueprints",
+      ],
+      cta: "Upgrade to Pro",
+      highlight: true,
+    },
+    {
+      name: "Agency",
+      description: "For teams managing multiple channels.",
+      price: "$99",
+      period: "/month",
+      features: [
+        "Everything in Pro",
+        "Custom Branding on PDFs",
+        "AI Voice Generation (Soon)",
+        "Team Collaboration (5 Users)",
+        "Priority 24/7 Support",
+      ],
+      cta: "Contact Sales",
+      highlight: false,
+    }
+  ];
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {/* Free Tier */}
-          <motion.div
+  return (
+    <section id="pricing" className="py-24 md:py-32 bg-[#050505] relative overflow-hidden">
+      {/* Background Glows */}
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-[#ff0000]/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-[120px] pointer-events-none" />
+
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="glass-card-surface rounded-3xl p-8 border border-border-color flex flex-col"
+            className="text-3xl md:text-5xl font-extrabold text-white mb-6"
           >
-            <h3 className="text-xl font-bold text-foreground mb-2">Creator Basic</h3>
-            <div className="flex items-baseline gap-1 mb-6">
-              <span className="text-4xl font-display font-bold">$0</span>
-              <span className="text-muted text-sm">/month</span>
-            </div>
-            <p className="text-sm text-muted mb-8 pb-8 border-b border-border-color">
-              Perfect for getting started and testing the tools.
-            </p>
-            <ul className="space-y-4 mb-8 flex-1">
-              {["150 AI Credits per month", "Basic Title Generation", "Standard Thumbnail Analysis", "5 Video Scripts per month"].map((feat, i) => (
-                <li key={i} className="flex items-center gap-3 text-sm text-muted-foreground">
-                  <div className="h-5 w-5 rounded-full bg-surface flex items-center justify-center text-foreground">
-                    <Check size={12} />
-                  </div>
-                  {feat}
-                </li>
-              ))}
-            </ul>
-            <button className="w-full rounded-xl border border-border-color bg-surface py-3.5 text-sm font-semibold hover:bg-surface-hover transition-colors">
-              Get Started Free
-            </button>
-          </motion.div>
-
-          {/* Pro Tier */}
-          <motion.div
+            Simple pricing, <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff0000] to-orange-500">infinite ROI.</span>
+          </motion.h2>
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="relative rounded-3xl p-8 border border-accent/30 bg-accent/5 flex flex-col"
+            className="text-muted-foreground text-lg"
           >
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent px-4 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
-              Most Popular
-            </div>
-            <h3 className="text-xl font-bold text-foreground mb-2 flex items-center gap-2">
-              Pro Creator
-              <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
-            </h3>
-            <div className="flex items-baseline gap-1 mb-6">
-              <span className="text-4xl font-display font-bold text-accent">$19</span>
-              <span className="text-muted text-sm">/month</span>
-            </div>
-            <p className="text-sm text-muted mb-8 pb-8 border-b border-border-color">
-              Everything you need to scale your channel fast.
-            </p>
-            <ul className="space-y-4 mb-8 flex-1">
-              {["Unlimited AI Credits", "Advanced Tag Generator", "Priority Video Ideas", "Unlimited Script Generation", "High-res Thumbnail Gen"].map((feat, i) => (
-                <li key={i} className="flex items-center gap-3 text-sm font-medium text-foreground">
-                  <div className="h-5 w-5 rounded-full bg-accent/20 flex items-center justify-center text-accent">
-                    <Check size={12} />
+            One viral video pays for a lifetime of Saflix. Choose your weapon.
+          </motion.p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center max-w-5xl mx-auto">
+          {plans.map((plan, idx) => (
+            <motion.div
+              key={plan.name}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.1 }}
+              className={`relative rounded-3xl p-8 backdrop-blur-sm border ${
+                plan.highlight
+                  ? "bg-[#181818] border-[#ff0000]/50 shadow-2xl shadow-[#ff0000]/10 scale-100 md:scale-105 z-10"
+                  : "bg-white/5 border-white/10 hover:border-white/20"
+              }`}
+            >
+              {plan.highlight && (
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                  <div className="bg-gradient-to-r from-[#ff0000] to-orange-500 text-white text-xs font-bold uppercase tracking-wider py-1 px-4 rounded-full flex items-center gap-1 shadow-lg">
+                    <Sparkles size={12} /> Most Popular
                   </div>
-                  {feat}
-                </li>
-              ))}
-            </ul>
-            <button className="btn-primary w-full py-3.5 text-sm">
-              Upgrade to Pro
-            </button>
-          </motion.div>
+                </div>
+              )}
+
+              <div className="mb-8">
+                <h3 className="text-xl font-bold text-white mb-2">{plan.name}</h3>
+                <p className="text-sm text-muted-foreground min-h-[40px]">{plan.description}</p>
+              </div>
+
+              <div className="mb-8 flex items-baseline">
+                <span className="text-4xl font-extrabold text-white">{plan.price}</span>
+                <span className="text-muted-foreground ml-1">{plan.period}</span>
+              </div>
+
+              <ul className="space-y-4 mb-8">
+                {plan.features.map((feature, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <Check size={18} className={plan.highlight ? "text-[#ff0000] shrink-0 mt-0.5" : "text-muted-foreground shrink-0 mt-0.5"} />
+                    <span className="text-sm text-gray-300">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                href="/dashboard"
+                className={`w-full flex items-center justify-center py-3.5 rounded-xl text-sm font-bold transition-all ${
+                  plan.highlight
+                    ? "bg-[#ff0000] text-white hover:bg-red-700 shadow-lg shadow-[#ff0000]/20"
+                    : "bg-white/10 text-white hover:bg-white/20"
+                }`}
+              >
+                {plan.cta}
+              </Link>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>

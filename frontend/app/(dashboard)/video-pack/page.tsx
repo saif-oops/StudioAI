@@ -82,7 +82,7 @@ export default function VideoPackGenerator() {
       const data = await res.json();
       if (data.success && data.pack) {
         setPack(data.pack);
-        addHistoryItem("1-Click Video Pack", topic, `Generated 3 titles, script outline, description, 20 tags, and thumbnail blueprint.`);
+        addHistoryItem({ tool: "video-pack" as any, input: topic, output: "Generated 3 titles, script outline, description, 20 tags, and thumbnail blueprint." });
         toast.success("Viral Video Pack Ready!", { icon: <CircleCheckBig className="text-emerald-400" size={18} /> });
       } else {
         toast.error("Generation Failed", { description: data.error || "Please try again.", icon: <OctagonAlert className="text-red-400" size={18} /> });

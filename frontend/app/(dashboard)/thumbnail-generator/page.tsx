@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toPng } from "html-to-image";
+import { removeBackground } from "@imgly/background-removal";
 import {
   Image as ImageIcon, Upload, Sparkles, Trash2, Download,
   OctagonAlert, CircleCheckBig, RefreshCw, Eye, X, Tv, Smartphone, CheckCircle2
@@ -90,6 +92,9 @@ export default function ThumbnailGenerator() {
   const [refinePrompt, setRefinePrompt] = useState("");
   const [showFeedPreview, setShowFeedPreview] = useState(false);
   const [feedMode, setFeedMode] = useState<"desktop" | "mobile">("desktop");
+  const compositeRef = useRef<HTMLDivElement>(null);
+  const [extractedPhoto, setExtractedPhoto] = useState<string | null>(null);
+  const [isExtracting, setIsExtracting] = useState(false);
 
   useEffect(() => {
     const savedPrompt = localStorage.getItem("saflix_thumbnail_prompt");
@@ -104,13 +109,28 @@ export default function ThumbnailGenerator() {
     }
   }, []);
 
-  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    setPhoto(URL.createObjectURL(file));
+    const url = URL.createObjectURL(file);
+    setPhoto(url);
     const reader = new FileReader();
     reader.onloadend = () => setPhotoBase64(reader.result as string);
     reader.readAsDataURL(file);
+
+    setIsExtracting(true);
+    toast("Extracting Subject...", { description: "Removing background from your photo..." });
+    try {
+      const blob = await removeBackground(file);
+      const extractedUrl = URL.createObjectURL(blob);
+      setExtractedPhoto(extractedUrl);
+      toast.success("Subject Extracted!");
+    } catch (error) {
+      console.error("BG removal failed", error);
+      toast.error("Background removal failed", { description: "Using original photo." });
+      setExtractedPhoto(url);
+    }
+    setIsExtracting(false);
   };
 
   const generateThumbnail = async (isRefinement = false) => {
@@ -152,25 +172,23 @@ export default function ThumbnailGenerator() {
     setLoading(false);
   };
 
-  const downloadImage1280x720 = () => {
-    if (!generatedImage) return;
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.src = generatedImage;
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = 1280;
-      canvas.height = 720;
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
-        ctx.drawImage(img, 0, 0, 1280, 720);
-        const url = canvas.toDataURL("image/png");
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "saflix-youtube-thumbnail-1280x720.png";
-        a.click();
-      }
-    };
+  const downloadImage1280x720 = async () => {
+    if (!generatedImage || !compositeRef.current) return;
+    try {
+      const node = compositeRef.current;
+      const scale = 1280 / node.offsetWidth;
+      const dataUrl = await toPng(node, {
+        pixelRatio: scale,
+        quality: 0.95,
+      });
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = "saflix-youtube-thumbnail-1280x720.png";
+      a.click();
+    } catch (err) {
+      console.error("Failed to generate image", err);
+      toast.error("Failed to download image");
+    }
   };
 
   return (
@@ -313,7 +331,29 @@ export default function ThumbnailGenerator() {
               )}
               {!loading && generatedImage && (
                 <div className="w-full space-y-4 text-center">
-                  <img src={generatedImage} alt="Generated thumbnail" className="rounded-xl border border-border-color w-full shadow-lg" />
+                  <div className="relative w-full aspect-video rounded-xl border border-border-color shadow-lg overflow-hidden bg-black group">
+                    <div 
+                      ref={compositeRef} 
+                      className="absolute inset-0 w-full h-full bg-cover bg-center flex items-center" 
+                      style={{ backgroundImage: `url(${generatedImage})` }}
+                    >
+                      {/* Middle Layer: Extracted Subject */}
+                      {extractedPhoto && (
+                        <div className="absolute right-0 bottom-0 h-[90%] w-[55%] flex justify-end items-end pointer-events-none">
+                          <img src={extractedPhoto} alt="Subject" className="object-contain object-bottom h-full max-w-full drop-shadow-[0_0_20px_rgba(0,0,0,0.6)]" />
+                        </div>
+                      )}
+                      
+                      {/* Top Layer: Typography */}
+                      <div className="w-[55%] flex flex-col justify-center pl-[6%] z-10 relative pointer-events-none">
+                         {title && title.split(" ").map((word, i) => (
+                           <div key={i} className="w-fit bg-[#ffeb3b] text-black font-black uppercase text-[4.5vw] sm:text-[3.5vw] md:text-[2.5vw] lg:text-[2.5vw] xl:text-[2.2vw] leading-none tracking-tighter px-[4%] py-[2%] mb-[2%] transform -rotate-3 shadow-[min(0.5vw,8px)_min(0.5vw,8px)_0px_0px_rgba(0,0,0,1)] border-[min(0.2vw,4px)] border-black">
+                             {word}
+                           </div>
+                         ))}
+                      </div>
+                    </div>
+                  </div>
                   <div className="flex flex-wrap gap-2 justify-center">
                     <button
                       onClick={downloadImage1280x720}

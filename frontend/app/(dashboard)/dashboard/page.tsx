@@ -250,7 +250,7 @@ export default function Dashboard() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground truncate capitalize">
-                        {h.tool.replace(/-/g, " ")}
+                        {h.tool?.replace(/-/g, " ") || "Unknown Tool"}
                       </p>
                       <p className="text-xs text-muted truncate">{h.input}</p>
                     </div>

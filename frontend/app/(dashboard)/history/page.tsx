@@ -213,7 +213,7 @@ export default function HistoryPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className={`text-xs font-bold uppercase tracking-wide ${color}`}>
-                          {item.tool.replace(/-/g, " ")}
+                          {item.tool?.replace(/-/g, " ") || "Unknown Tool"}
                         </span>
                         <span className="text-[10px] text-muted">{timeAgo(item.createdAt)}</span>
                       </div>
