@@ -25,17 +25,14 @@ export default function Navbar() {
       }`}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <Link href="/" className="flex items-center gap-2.5">
-          <div
-            className="flex h-9 w-9 items-center justify-center rounded-xl text-white font-display font-bold text-sm"
-            style={{ background: "linear-gradient(135deg, #ff0033 0%, #ff4400 100%)" }}
-          >
-            S
+        <Link href="/" className="flex items-center gap-2">
+          <div className="flex h-7 w-10 items-center justify-center rounded-lg bg-[#ff0000] shadow-md">
+            <div className="ml-0.5 h-0 w-0 border-y-[4.5px] border-l-[8px] border-y-transparent border-l-white" />
           </div>
-          <div>
-            <span className="font-display text-lg font-bold tracking-tight text-foreground leading-none">
-              Studio<span className="gradient-text">AI</span>
-            </span>
+          <div className="flex items-baseline">
+            <span className="font-display text-lg font-bold tracking-tight text-white">Saflix</span>
+            <span className="ml-1 font-display text-lg font-normal tracking-tight text-white/90">Studio</span>
+            <sup className="ml-0.5 font-bold tracking-wider text-[#ff0000] text-[10px]">AI</sup>
           </div>
         </Link>
 

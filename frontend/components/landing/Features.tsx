@@ -1,9 +1,16 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Lightbulb, Tags, Palette, Image as ImageIcon, FileText, Clapperboard } from "lucide-react";
+import { Lightbulb, Tags, Palette, Image as ImageIcon, FileText, Clapperboard, PenLine } from "lucide-react";
 
 const features = [
+  {
+    icon: ImageIcon,
+    title: "Thumbnail Generator",
+    desc: "Upload your photo/face and let AI generate viral custom thumbnails with interactive follow-up revisions.",
+    color: "text-purple-400",
+    bg: "bg-purple-400/10",
+  },
   {
     icon: Lightbulb,
     title: "Video Ideas",
@@ -33,13 +40,6 @@ const features = [
     bg: "bg-blue-400/10",
   },
   {
-    icon: FileText,
-    title: "Smart Descriptions",
-    desc: "Write SEO-optimized descriptions with timestamps and hashtags in seconds.",
-    color: "text-purple-400",
-    bg: "bg-purple-400/10",
-  },
-  {
     icon: Clapperboard,
     title: "Script Writer",
     desc: "Generate full video scripts with hooks, engaging body content, and strong calls to action.",
@@ -47,8 +47,6 @@ const features = [
     bg: "bg-emerald-400/10",
   },
 ];
-
-import { PenLine } from "lucide-react";
 
 export default function Features() {
   return (

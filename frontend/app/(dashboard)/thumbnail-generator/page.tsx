@@ -1,14 +1,67 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Image as ImageIcon, Upload, Sparkles, Trash2, Download,
-  OctagonAlert, CircleCheckBig, RefreshCw,
+  OctagonAlert, CircleCheckBig, RefreshCw, Eye, X, Tv, Smartphone, CheckCircle2
 } from "lucide-react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import PageHeader from "@/components/dashboard/PageHeader";
 import { toast } from "sonner";
+
+const mockCompetitors = [
+  {
+    title: "I Spent $1,000,000 On AI Coding Robots!",
+    creator: "MrBeast",
+    views: "14M views",
+    time: "1 day ago",
+    avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80",
+    thumb: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80",
+    duration: "14:20",
+    verified: true,
+  },
+  {
+    title: "The Uncomfortable Truth About AI in 2026...",
+    creator: "Marques Brownlee",
+    views: "3.2M views",
+    time: "3 days ago",
+    avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100&auto=format&fit=crop&q=80",
+    thumb: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&auto=format&fit=crop&q=80",
+    duration: "18:05",
+    verified: true,
+  },
+  {
+    title: "How I Manage 10 Businesses With One AI Agent",
+    creator: "Ali Abdaal",
+    views: "890K views",
+    time: "1 week ago",
+    avatar: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=100&auto=format&fit=crop&q=80",
+    thumb: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&auto=format&fit=crop&q=80",
+    duration: "22:11",
+    verified: true,
+  },
+  {
+    title: "10 AI Coding Tools Replacing Junior Developers",
+    creator: "Fireship",
+    views: "1.5M views",
+    time: "2 days ago",
+    avatar: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=100&auto=format&fit=crop&q=80",
+    thumb: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&auto=format&fit=crop&q=80",
+    duration: "08:42",
+    verified: true,
+  },
+  {
+    title: "Why You Will Lose Your Job in 2026 (And How To Survive)",
+    creator: "Alex Hormozi",
+    views: "2.1M views",
+    time: "5 days ago",
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
+    thumb: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&auto=format&fit=crop&q=80",
+    duration: "31:15",
+    verified: true,
+  }
+];
 
 const stylePresets = [
   { label: "Bold & Bright", value: "bold_bright", desc: "High contrast, vivid colors", color: "#f97316" },
@@ -19,9 +72,9 @@ const stylePresets = [
 ];
 
 const aspectRatios = [
-  { label: "16:9", desc: "YouTube", value: "16:9" },
-  { label: "1:1", desc: "Shorts", value: "1:1" },
-  { label: "4:5", desc: "Stories", value: "4:5" },
+  { label: "16:9", desc: "1280x720 HD", value: "16:9 (1280x720)" },
+  { label: "1:1", desc: "1080x1080", value: "1:1 (1080x1080)" },
+  { label: "9:16", desc: "1080x1920", value: "9:16 (1080x1920)" },
 ];
 
 export default function ThumbnailGenerator() {
@@ -30,10 +83,26 @@ export default function ThumbnailGenerator() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [selectedStyle, setSelectedStyle] = useState("bold_bright");
-  const [aspectRatio, setAspectRatio] = useState("16:9");
+  const [aspectRatio, setAspectRatio] = useState("16:9 (1280x720)");
   const [loading, setLoading] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [history, setHistory] = useState<string[]>([]);
+  const [refinePrompt, setRefinePrompt] = useState("");
+  const [showFeedPreview, setShowFeedPreview] = useState(false);
+  const [feedMode, setFeedMode] = useState<"desktop" | "mobile">("desktop");
+
+  useEffect(() => {
+    const savedPrompt = localStorage.getItem("saflix_thumbnail_prompt");
+    const savedTitle = localStorage.getItem("saflix_thumbnail_title");
+    if (savedPrompt) {
+      setDescription(savedPrompt);
+      localStorage.removeItem("saflix_thumbnail_prompt");
+    }
+    if (savedTitle) {
+      setTitle(savedTitle);
+      localStorage.removeItem("saflix_thumbnail_title");
+    }
+  }, []);
 
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -44,24 +113,36 @@ export default function ThumbnailGenerator() {
     reader.readAsDataURL(file);
   };
 
-  const generateThumbnail = async () => {
+  const generateThumbnail = async (isRefinement = false) => {
     if (!photoBase64 || !title.trim()) {
       toast.error("Input Required", { description: "Please upload a photo and enter a title.", icon: <OctagonAlert className="text-red-400" size={18} /> });
       return;
     }
+    if (isRefinement && !refinePrompt.trim()) {
+      toast.error("Prompt Required", { description: "Please enter what you want to change.", icon: <OctagonAlert className="text-red-400" size={18} /> });
+      return;
+    }
     setLoading(true);
-    setGeneratedImage(null);
+    const descToSend = isRefinement
+      ? `${description}. IMPORTANT REFINEMENT / MODIFICATION INSTRUCTIONS: ${refinePrompt}`
+      : description;
+
+    if (!isRefinement) {
+      setGeneratedImage(null);
+    }
+
     try {
       const res = await fetch("/api/generate-thumbnail", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ photo: photoBase64, title, description, style: selectedStyle, aspectRatio }),
+        body: JSON.stringify({ photo: photoBase64, title, description: descToSend, style: selectedStyle, aspectRatio }),
       });
       const data = await res.json();
       if (data.success) {
         setGeneratedImage(data.image);
         setHistory((prev) => [data.image, ...prev].slice(0, 3));
-        toast.success("Thumbnail Generated!", { icon: <CircleCheckBig className="text-emerald-400" size={18} /> });
+        if (isRefinement) setRefinePrompt("");
+        toast.success(isRefinement ? "Thumbnail Refined!" : "Thumbnail Generated!", { icon: <CircleCheckBig className="text-emerald-400" size={18} /> });
       } else {
         toast.error("Generation Failed", { description: data.error || "Please try again.", icon: <OctagonAlert className="text-red-400" size={18} /> });
       }
@@ -69,6 +150,27 @@ export default function ThumbnailGenerator() {
       toast.error("Something went wrong");
     }
     setLoading(false);
+  };
+
+  const downloadImage1280x720 = () => {
+    if (!generatedImage) return;
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src = generatedImage;
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = 1280;
+      canvas.height = 720;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(img, 0, 0, 1280, 720);
+        const url = canvas.toDataURL("image/png");
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "saflix-youtube-thumbnail-1280x720.png";
+        a.click();
+      }
+    };
   };
 
   return (
@@ -187,7 +289,7 @@ export default function ThumbnailGenerator() {
               </div>
             </div>
 
-            <button onClick={generateThumbnail} disabled={loading} className="btn-primary w-full">
+            <button onClick={() => generateThumbnail(false)} disabled={loading} className="btn-primary w-full">
               <Sparkles size={16} />
               {loading ? "Generating..." : "Generate Thumbnail"}
             </button>
@@ -212,19 +314,49 @@ export default function ThumbnailGenerator() {
               {!loading && generatedImage && (
                 <div className="w-full space-y-4 text-center">
                   <img src={generatedImage} alt="Generated thumbnail" className="rounded-xl border border-border-color w-full shadow-lg" />
-                  <div className="flex gap-2 justify-center">
-                    <a
-                      href={generatedImage}
-                      download="thumbnail.png"
-                      className="btn-primary text-sm px-5 py-2.5"
+                  <div className="flex flex-wrap gap-2 justify-center">
+                    <button
+                      onClick={downloadImage1280x720}
+                      className="btn-primary text-sm px-5 py-2.5 flex items-center gap-1.5"
                     >
                       <Download size={14} />
-                      Download
-                    </a>
-                    <button onClick={generateThumbnail} disabled={loading} className="btn-secondary text-sm px-4 py-2.5">
+                      Download (1280x720)
+                    </button>
+                    <button
+                      onClick={() => setShowFeedPreview(true)}
+                      className="btn-secondary text-sm px-4 py-2.5 flex items-center gap-1.5 bg-[#ff0000]/10 border-[#ff0000]/30 text-[#ff0000] hover:bg-[#ff0000]/20 font-semibold shadow-lg"
+                    >
+                      <Eye size={14} />
+                      Preview in YouTube Feed
+                    </button>
+                    <button onClick={() => generateThumbnail(false)} disabled={loading} className="btn-secondary text-sm px-4 py-2.5 flex items-center gap-1.5">
                       <RefreshCw size={14} />
                       Regenerate
                     </button>
+                  </div>
+                  {/* AI Refinement Box */}
+                  <div className="mt-4 pt-4 border-t border-border-color text-left">
+                    <label className="text-xs text-muted font-semibold mb-2 flex items-center gap-1.5">
+                      <Sparkles size={14} className="text-accent" />
+                      Refine with AI (Interactive Revisions)
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={refinePrompt}
+                        onChange={(e) => setRefinePrompt(e.target.value)}
+                        placeholder="e.g. Make background darker, add neon glow around text..."
+                        className="input-field flex-1 text-xs py-2"
+                        onKeyDown={(e) => e.key === "Enter" && generateThumbnail(true)}
+                      />
+                      <button
+                        onClick={() => generateThumbnail(true)}
+                        disabled={loading || !refinePrompt.trim()}
+                        className="btn-primary text-xs px-4 py-2 whitespace-nowrap"
+                      >
+                        Refine
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
@@ -256,6 +388,129 @@ export default function ThumbnailGenerator() {
           </motion.div>
         </div>
       </section>
+
+      {/* YouTube Feed A/B Test Simulator Modal */}
+      <AnimatePresence>
+        {showFeedPreview && generatedImage && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-[#0f0f0f] border border-[#272727] rounded-3xl w-full max-w-6xl max-h-[90vh] overflow-y-auto shadow-2xl p-6 md:p-8 space-y-6 my-8"
+            >
+              {/* Modal Header */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#272727] pb-4">
+                <div>
+                  <h3 className="font-display text-xl font-bold flex items-center gap-2">
+                    <span className="bg-[#ff0000] text-white text-xs px-2 py-0.5 rounded font-black tracking-wider">LIVE</span>
+                    YouTube Home Feed Simulator
+                  </h3>
+                  <p className="text-xs text-muted mt-1">
+                    Test how your 1280x720 thumbnail stands out against top creators in YouTube's Dark Theme before publishing!
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  {/* View Toggle */}
+                  <div className="flex bg-[#272727] p-1 rounded-xl">
+                    <button
+                      onClick={() => setFeedMode("desktop")}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                        feedMode === "desktop" ? "bg-[#ff0000] text-white" : "text-muted hover:text-white"
+                      }`}
+                    >
+                      <Tv size={14} /> Desktop Grid
+                    </button>
+                    <button
+                      onClick={() => setFeedMode("mobile")}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                        feedMode === "mobile" ? "bg-[#ff0000] text-white" : "text-muted hover:text-white"
+                      }`}
+                    >
+                      <Smartphone size={14} /> Mobile Feed
+                    </button>
+                  </div>
+
+                  <button
+                    onClick={() => setShowFeedPreview(false)}
+                    className="p-2 bg-[#272727] hover:bg-[#ff0000] text-white rounded-full transition-colors"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Mock YouTube Grid */}
+              <div className={
+                feedMode === "desktop"
+                  ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"
+                  : "max-w-md mx-auto space-y-6"
+              }>
+                {/* SLOT 1: YOUR VIDEO */}
+                <div className="group cursor-pointer flex flex-col space-y-3 bg-[#181818]/80 p-3 rounded-2xl border-2 border-[#ff0000] shadow-[0_0_20px_rgba(255,0,0,0.2)] relative">
+                  <div className="absolute -top-3 -left-2 bg-[#ff0000] text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full shadow-lg z-10 flex items-center gap-1 animate-pulse">
+                    <CheckCircle2 size={12} /> Your Video (A/B Test)
+                  </div>
+                  
+                  {/* Thumb Box */}
+                  <div className="relative aspect-video rounded-xl overflow-hidden bg-black shadow-inner">
+                    <img src={generatedImage} alt="Your Thumbnail" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    <span className="absolute bottom-2 right-2 bg-black/80 text-white font-mono text-[11px] font-bold px-1.5 py-0.5 rounded">
+                      12:45
+                    </span>
+                  </div>
+
+                  {/* Metadata */}
+                  <div className="flex gap-3 items-start pt-1">
+                    <div className="w-9 h-9 rounded-full bg-[#ff0000] flex items-center justify-center text-white font-bold text-sm shrink-0 shadow">
+                      S
+                    </div>
+                    <div className="space-y-1 overflow-hidden">
+                      <h4 className="text-sm font-bold leading-snug line-clamp-2 group-hover:text-[#ff0000] transition-colors">
+                        {title || "AI Thumbnail That Will Get You 1,000,000 Views Guaranteed"}
+                      </h4>
+                      <div className="text-xs text-muted flex items-center gap-1">
+                        <span>Saflix AI Studio</span>
+                        <CheckCircle2 size={12} className="text-muted shrink-0" />
+                      </div>
+                      <p className="text-xs text-muted">2.4M views • 2 hours ago</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* COMPETITORS */}
+                {mockCompetitors.map((comp, idx) => (
+                  <div key={idx} className="group cursor-pointer flex flex-col space-y-3 p-3 rounded-2xl hover:bg-[#181818]/40 transition-colors">
+                    {/* Thumb Box */}
+                    <div className="relative aspect-video rounded-xl overflow-hidden bg-black">
+                      <img src={comp.thumb} alt={comp.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      <span className="absolute bottom-2 right-2 bg-black/80 text-white font-mono text-[11px] font-bold px-1.5 py-0.5 rounded">
+                        {comp.duration}
+                      </span>
+                    </div>
+
+                    {/* Metadata */}
+                    <div className="flex gap-3 items-start pt-1">
+                      <img src={comp.avatar} alt={comp.creator} className="w-9 h-9 rounded-full object-cover shrink-0" />
+                      <div className="space-y-1 overflow-hidden">
+                        <h4 className="text-sm font-bold leading-snug line-clamp-2 group-hover:text-white transition-colors">
+                          {comp.title}
+                        </h4>
+                        <div className="text-xs text-muted flex items-center gap-1">
+                          <span>{comp.creator}</span>
+                          {comp.verified && <CheckCircle2 size={12} className="text-muted shrink-0" />}
+                        </div>
+                        <p className="text-xs text-muted">{comp.views} • {comp.time}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }

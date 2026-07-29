@@ -32,6 +32,14 @@ export default function Hero() {
     "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=100&h=100&q=80"
   ];
 
+  const glassStyle = {
+    background: "rgba(255,0,51,0.07)",
+    backdropFilter: "blur(8px)",
+    WebkitBackdropFilter: "blur(8px)",
+    boxShadow:
+      "0 0 0 1px rgba(255,0,51,0.15), 0 0 16px rgba(255,0,51,0.25), 0 0 40px rgba(255,0,51,0.1)",
+  };
+
   return (
     <section className="relative overflow-hidden pt-32 pb-20 md:pt-48 md:pb-32">
       {/* Background Glow */}
@@ -79,19 +87,18 @@ export default function Hero() {
         >
           Create Content That{" "}
           <br className="hidden md:block" />
-          <span className="relative inline-block mt-2 md:mt-4">
+          <span className="relative inline-flex items-center justify-center mt-2 md:mt-4 rounded-2xl px-6 py-2 text-accent whitespace-nowrap min-w-[280px] md:min-w-[400px]" style={glassStyle}>
             <AnimatePresence mode="wait">
               <motion.span
                 key={index}
-                initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+                initial={{ opacity: 0, y: 15, filter: "blur(8px)" }}
                 animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
-                transition={{ duration: 0.4 }}
-                className="absolute inset-0 gradient-text text-left"
+                exit={{ opacity: 0, y: -15, filter: "blur(8px)" }}
+                transition={{ duration: 0.35 }}
+                className="whitespace-nowrap inline-block font-display"
               >
                 {words[index]}
               </motion.span>
-              <span className="opacity-0">{words[0]}</span> {/* invisible placeholder for width */}
             </AnimatePresence>
           </span>
         </motion.h1>

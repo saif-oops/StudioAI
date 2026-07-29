@@ -20,10 +20,20 @@ import {
   ChevronRight,
   Lightbulb,
   Tags,
+  Search,
+  Mic,
+  Plus,
+  Bell,
+  Sparkles,
+  Flame,
+  Radar,
 } from "lucide-react";
 
 const menuItems = [
   { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
+  { name: "1-Click Video Pack", icon: Sparkles, path: "/video-pack" },
+  { name: "Shorts & Hooks", icon: Flame, path: "/shorts-generator" },
+  { name: "Trend Radar", icon: Radar, path: "/trend-radar" },
   { name: "Video Ideas", icon: Lightbulb, path: "/ideas-generator" },
   { name: "Tag Generator", icon: Tags, path: "/tag-generator" },
   { name: "Thumbnail Analyzer", icon: Palette, path: "/thumbnail-analyzer" },
@@ -38,18 +48,14 @@ const menuItems = [
 
 function SidebarLogo() {
   return (
-    <div className="mb-8 flex items-center gap-3">
-      <div
-        className="h-9 w-9 rounded-xl flex items-center justify-center font-display font-bold text-white text-sm shrink-0"
-        style={{ background: "linear-gradient(135deg, #ff0033 0%, #ff4400 100%)" }}
-      >
-        S
+    <div className="mb-6 flex items-center gap-2.5 px-2">
+      <div className="flex h-7 w-10 items-center justify-center rounded-lg bg-[#ff0000] shadow-md shrink-0">
+        <div className="ml-0.5 h-0 w-0 border-y-[4.5px] border-l-[8px] border-y-transparent border-l-white" />
       </div>
-      <div>
-        <h1 className="font-display text-base font-bold tracking-tight text-foreground leading-none">
-          Studio<span className="gradient-text">AI</span>
-        </h1>
-        <p className="text-[10px] text-muted mt-0.5 leading-none">YouTube Creator Suite</p>
+      <div className="flex items-baseline">
+        <span className="font-display text-lg font-bold tracking-tight text-white">Saflix</span>
+        <span className="ml-1 font-display text-lg font-normal tracking-tight text-white/90">Studio</span>
+        <sup className="ml-0.5 font-bold tracking-wider text-[#ff0000] text-[10px]">AI</sup>
       </div>
     </div>
   );
@@ -89,7 +95,7 @@ function NavItem({
           <Icon
             size={16}
             strokeWidth={active ? 2.2 : 1.8}
-            className="shrink-0 transition-all"
+            className={`shrink-0 transition-all ${item.path === "/video-pack" && !active ? "text-[#ff0000] animate-pulse" : ""}`}
           />
           <span className="truncate">{item.name}</span>
         </div>
@@ -106,14 +112,16 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
 
   return (
     <div className="flex h-full flex-col">
-      <SidebarLogo />
+      <div className="md:hidden">
+        <SidebarLogo />
+      </div>
 
       {/* Navigation */}
       <nav className="flex-1 space-y-0.5">
         <p className="px-3.5 mb-2 text-[10px] font-semibold uppercase tracking-widest text-muted/60">
           Tools
         </p>
-        {menuItems.slice(0, 8).map((item) => (
+        {menuItems.slice(0, 9).map((item) => (
           <NavItem
             key={item.path}
             item={item}
@@ -125,7 +133,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
         <p className="px-3.5 mt-5 mb-2 text-[10px] font-semibold uppercase tracking-widest text-muted/60">
           Account
         </p>
-        {menuItems.slice(8).map((item) => (
+        {menuItems.slice(9).map((item) => (
           <NavItem
             key={item.path}
             item={item}
@@ -144,7 +152,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
             </div>
             <div>
               <p className="text-xs font-semibold text-foreground">AI Credits</p>
-              <p className="text-[10px] text-muted">Free Plan</p>
+              <p className="text-[10px] text-muted">YouTube Pro</p>
             </div>
           </div>
           <span className="text-xs font-bold text-accent">120/150</span>
@@ -154,7 +162,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
         <div className="h-1.5 w-full rounded-full bg-border-color overflow-hidden">
           <motion.div
             className="h-full rounded-full"
-            style={{ background: "linear-gradient(90deg, #ff0033 0%, #ff4400 100%)" }}
+            style={{ background: "linear-gradient(90deg, #ff0000 0%, #ff4400 100%)" }}
             initial={{ width: 0 }}
             animate={{ width: "80%" }}
             transition={{ duration: 1.2, ease: "easeOut", delay: 0.5 }}
@@ -183,26 +191,67 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Mobile Top Bar */}
-      <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-border-color bg-background/95 backdrop-blur-md sticky top-0 z-30 w-full">
-        <div className="flex items-center gap-2.5">
-          <div
-            className="h-7 w-7 rounded-lg flex items-center justify-center font-display font-bold text-white text-xs"
-            style={{ background: "linear-gradient(135deg, #ff0033 0%, #ff4400 100%)" }}
+      {/* Universal YouTube Studio / Premium Top Bar (Fixed across entire window) */}
+      <header className="fixed top-0 left-0 right-0 z-40 flex h-16 w-full items-center justify-between border-b border-[#272727] bg-[#0f0f0f]/95 px-4 backdrop-blur-md md:px-6">
+        {/* Left: Hamburger & Logo */}
+        <div className="flex items-center gap-3 md:gap-4">
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-[#272727] text-white transition-colors"
           >
-            S
-          </div>
-          <span className="font-display font-bold text-sm text-foreground">
-            Studio<span className="gradient-text">AI</span>
-          </span>
+            <Menu size={20} />
+          </button>
+          <Link href="/dashboard" className="flex items-center gap-2">
+            <div className="flex h-6 w-9 items-center justify-center rounded-lg bg-[#ff0000] shadow-md">
+              <div className="ml-0.5 h-0 w-0 border-y-[4px] border-l-[8px] border-y-transparent border-l-white" />
+            </div>
+            <div className="flex items-baseline">
+              <span className="font-display text-lg font-bold tracking-tight text-white">Saflix</span>
+              <span className="ml-1 font-display text-lg font-normal tracking-tight text-white/90">Studio</span>
+              <sup className="ml-0.5 font-bold tracking-wider text-[#ff0000] text-[10px]">AI</sup>
+            </div>
+          </Link>
         </div>
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="h-8 w-8 flex items-center justify-center rounded-lg border border-border-color bg-surface text-muted hover:text-foreground transition-colors"
-        >
-          {isOpen ? <X size={16} /> : <Menu size={16} />}
-        </button>
-      </div>
+
+        {/* Center: YouTube Search Bar */}
+        <div className="hidden max-w-xl flex-1 items-center justify-center md:flex px-6">
+          <div className="flex w-full items-center rounded-full border border-[#303030] bg-[#121212] focus-within:border-[#3f3f3f] shadow-inner">
+            <input
+              type="text"
+              placeholder="Search creator tools, video ideas, thumbnails, SEO tags..."
+              className="w-full bg-transparent px-5 py-2 text-sm text-white placeholder-muted focus:outline-none"
+            />
+            <button className="flex h-9 w-14 items-center justify-center rounded-r-full border-l border-[#303030] bg-[#222222] text-muted hover:text-white transition-colors">
+              <Search size={16} />
+            </button>
+          </div>
+          <button className="ml-3 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#181818] hover:bg-[#272727] text-white transition-colors">
+            <Mic size={16} />
+          </button>
+        </div>
+
+        {/* Right: + Create Button, Notifications, Avatar */}
+        <div className="flex items-center gap-2.5 md:gap-3">
+          <Link
+            href="/video-pack"
+            className="flex items-center gap-2 rounded-full bg-[#272727] px-3.5 py-1.5 text-xs md:text-sm font-medium text-white hover:bg-[#3f3f3f] transition-all shadow-sm"
+          >
+            <Plus size={16} className="text-[#ff0000]" />
+            <span className="hidden sm:inline">Create</span>
+          </Link>
+          <button className="relative flex h-9 w-9 items-center justify-center rounded-full hover:bg-[#272727] text-white transition-colors">
+            <Bell size={18} />
+            <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#ff0000] text-[9px] font-bold text-white">
+              9+
+            </span>
+          </button>
+          <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-[#ff0000] to-purple-600 p-0.5 shadow-md cursor-pointer">
+            <div className="h-full w-full rounded-full bg-[#181818] flex items-center justify-center font-bold text-white text-xs">
+              YT
+            </div>
+          </div>
+        </div>
+      </header>
 
       {/* Mobile Drawer */}
       <AnimatePresence>
@@ -220,16 +269,24 @@ export default function Sidebar() {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", bounce: 0, duration: 0.32 }}
-              className="fixed bottom-0 left-0 top-0 z-50 w-64 border-r border-border-color bg-background p-5 md:hidden overflow-y-auto"
+              className="fixed bottom-0 left-0 top-0 z-50 w-64 border-r border-border-color bg-[#0f0f0f] p-5 md:hidden overflow-y-auto"
             >
+              <div className="flex justify-end mb-4">
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-[#272727] text-white transition-colors"
+                >
+                  <X size={18} />
+                </button>
+              </div>
               <SidebarContent onClose={() => setIsOpen(false)} />
             </motion.aside>
           </>
         )}
       </AnimatePresence>
 
-      {/* Desktop Sidebar */}
-      <aside className="hidden md:flex w-60 min-h-screen border-r border-border-color bg-background/80 backdrop-blur-sm p-5 flex-col shrink-0 sticky top-0 h-screen overflow-y-auto">
+      {/* Desktop Sidebar (Sticky under the 64px Top Bar) */}
+      <aside className="hidden md:flex w-60 min-h-screen border-r border-[#272727] bg-[#0f0f0f] p-5 flex-col shrink-0 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto z-30">
         <SidebarContent />
       </aside>
     </>

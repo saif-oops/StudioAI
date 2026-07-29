@@ -1,15 +1,16 @@
 export async function POST(req: Request) {
   try {
-    const { photo, title, description } = await req.json();
+    const { photo, title, description, aspectRatio = "16:9" } = await req.json();
 
     // Extract base64 data (remove the "data:image/...;base64," prefix)
     const base64Data = photo.split(",")[1];
     const mimeType = photo.match(/data:(image\/\w+);base64/)?.[1] || "image/jpeg";
 
     const prompt = `Create a professional, high click-through-rate YouTube thumbnail using the person in the provided photo. 
+CRITICAL SIZE & ASPECT RATIO REQUIREMENT: The generated image MUST be strictly in a ${aspectRatio} widescreen landscape aspect ratio (optimized for standard YouTube thumbnail resolution of 1280x720 pixels). Do NOT generate square or vertical images unless explicitly requested.
 Title text to feature prominently: "${title}".
 ${description ? `Style/context: ${description}.` : ""}
-Make it eye-catching with bold text, strong contrast, and an engaging composition typical of successful YouTube thumbnails.`;
+Make it eye-catching with bold text, strong contrast, and an engaging composition typical of viral 1280x720 YouTube thumbnails.`;
 
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${process.env.GEMINI_API_KEY}`,
