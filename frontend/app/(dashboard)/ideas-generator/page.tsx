@@ -9,6 +9,8 @@ import Sidebar from "@/components/dashboard/Sidebar";
 import PageHeader from "@/components/dashboard/PageHeader";
 import { addHistoryItem } from "@/lib/history";
 import { toast } from "sonner";
+import { useAuth } from "@/components/AuthProvider";
+import { checkCredits, deductCredits } from "@/lib/credits";
 
 type Idea = { title: string; description: string; viralityScore: number };
 
@@ -19,10 +21,22 @@ export default function IdeasGenerator() {
   const [audience, setAudience] = useState("General");
   const [ideas, setIdeas] = useState<Idea[]>([]);
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
   const generateIdeas = async () => {
     if (!niche.trim()) return;
+    if (!user) {
+      toast.error("Please sign in to generate video ideas.");
+      return;
+    }
+
+    const creditStatus = await checkCredits(user.uid, 1, { email: user.email, name: user.displayName });
+    if (!creditStatus.allowed) {
+      toast.error(creditStatus.error || "Not enough credits.");
+      return;
+    }
+
     setLoading(true);
     setIdeas([]);
     try {
@@ -34,8 +48,9 @@ export default function IdeasGenerator() {
       const data = await res.json();
       if (data.success) {
         setIdeas(data.ideas);
+        await deductCredits(user.uid, 1);
         toast.success("Ideas Ready!", { icon: <CircleCheckBig className="text-emerald-400" size={18} /> });
-        addHistoryItem({ tool: "ideas-generator" as any, input: niche, output: data.ideas });
+        addHistoryItem({ tool: "ideas-generator", input: niche, output: data.ideas });
       } else {
         toast.error("Generation Failed", { description: "Please try again.", icon: <OctagonAlert className="text-red-400" size={18} /> });
       }

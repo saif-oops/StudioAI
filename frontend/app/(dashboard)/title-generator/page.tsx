@@ -10,6 +10,11 @@ import Sidebar from "@/components/dashboard/Sidebar";
 import PageHeader from "@/components/dashboard/PageHeader";
 import { addHistoryItem } from "@/lib/history";
 import { toast } from "sonner";
+import { useAuth } from "@/components/AuthProvider";
+import { ref, get, update, set } from "firebase/database";
+import { db } from "@/lib/firebase";
+import { generateTitles as generateTitlesAI } from "@/app/actions/ai";
+import { notifyInsufficientCredits } from "@/lib/credits";
 
 type TitleItem = { title: string; score: number };
 
@@ -57,34 +62,69 @@ export default function TitleGenerator() {
   const [loading, setLoading] = useState(false);
   const [regeneratingIndex, setRegeneratingIndex] = useState<number | null>(null);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const { user } = useAuth();
 
   const bestScore = titles.length > 0 ? Math.max(...titles.map((t) => t.score)) : 0;
 
   const fetchTitles = async () => {
-    const res = await fetch("/api/generate-title", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ topic, tone }),
-    });
-    return res.json();
+    return await generateTitlesAI(topic, tone);
   };
 
   const generateTitles = async () => {
     if (!topic.trim()) return;
+    if (!user) {
+      toast.error("You must be logged in to generate titles.");
+      return;
+    }
+
     setLoading(true);
     setStarred(new Set());
     setPinned([]);
     try {
+      let credits = 150;
+      let userRef: ReturnType<typeof ref> | null = null;
+      try {
+        userRef = ref(db, `users/${user.uid}`);
+        const userSnap = await get(userRef);
+        if (userSnap.exists()) {
+          credits = userSnap.val().credits ?? 150;
+        } else {
+          await set(userRef, {
+            email: user.email,
+            name: user.displayName,
+            credits: 150,
+            tier: "Free",
+            createdAt: new Date().toISOString(),
+          });
+        }
+      } catch (dbErr) {
+        console.warn("Credit check warning:", dbErr);
+      }
+
+      if (credits < 1) {
+        notifyInsufficientCredits("Not enough credits to generate titles.");
+        setLoading(false);
+        return;
+      }
+
       const data = await fetchTitles();
-      if (data.success) {
+      if (data.success && data.titles) {
         setTitles(data.titles);
+        try {
+          if (userRef) {
+            await update(userRef, { credits: Math.max(0, credits - 1) });
+          }
+        } catch (updateErr) {
+          console.warn("Credit update warning:", updateErr);
+        }
         toast.success("Titles Ready!", { description: "5 high-CTR titles generated.", icon: <CircleCheckBig className="text-emerald-400" size={18} /> });
         addHistoryItem({ tool: "title-generator", input: topic, output: data.titles });
       } else {
-        toast.error("Generation Failed", { description: "Please try again.", icon: <OctagonAlert className="text-red-400" size={18} /> });
+        toast.error("Generation Failed", { description: data.error || "Please try again.", icon: <OctagonAlert className="text-red-400" size={18} /> });
       }
-    } catch {
-      toast.error("Something went wrong");
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "Something went wrong";
+      toast.error(msg);
     }
     setLoading(false);
   };
@@ -111,7 +151,11 @@ export default function TitleGenerator() {
   const toggleStar = (index: number) => {
     setStarred((prev) => {
       const n = new Set(prev);
-      n.has(index) ? n.delete(index) : n.add(index);
+      if (n.has(index)) {
+        n.delete(index);
+      } else {
+        n.add(index);
+      }
       return n;
     });
   };

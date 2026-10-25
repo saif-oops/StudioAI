@@ -4,9 +4,11 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/components/AuthProvider";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const { openAuthModal } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -46,16 +48,25 @@ export default function Navbar() {
           <Link href="#pricing" className="text-sm font-medium text-muted hover:text-foreground transition-colors">
             Pricing
           </Link>
+          <Link href="#contact" className="text-sm font-medium text-muted hover:text-foreground transition-colors">
+            Contact
+          </Link>
         </div>
 
         <div className="flex items-center gap-3">
-          <Link href="/dashboard" className="hidden sm:block text-sm font-semibold text-muted hover:text-foreground transition-colors mr-2">
+          <button 
+            onClick={openAuthModal}
+            className="hidden sm:block text-sm font-semibold text-muted hover:text-foreground transition-colors mr-2 cursor-pointer"
+          >
             Sign In
-          </Link>
-          <Link href="/dashboard" className="btn-primary flex items-center gap-2 text-sm px-5 py-2.5">
+          </button>
+          <button 
+            onClick={openAuthModal}
+            className="btn-primary flex items-center gap-2 text-sm px-5 py-2.5 cursor-pointer"
+          >
             <Sparkles size={14} />
             Try for Free
-          </Link>
+          </button>
         </div>
       </div>
     </motion.nav>

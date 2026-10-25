@@ -4,12 +4,14 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import {
-  Radar, Sparkles, RefreshCw, Target, TrendingUp, Zap, ChevronRight, Activity, ArrowUpRight, Flame
+  Radar, Sparkles, RefreshCw, Target, TrendingUp, Activity, ArrowUpRight
 } from "lucide-react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import PageHeader from "@/components/dashboard/PageHeader";
 import { toast } from "sonner";
 import { addHistoryItem } from "@/lib/history";
+import { useAuth } from "@/components/AuthProvider";
+import { checkCredits, deductCredits } from "@/lib/credits";
 
 type Trend = {
   title: string;
@@ -36,11 +38,22 @@ export default function TrendRadarPage() {
   const [niche, setNiche] = useState("");
   const [timeframe, setTimeframe] = useState("This Month");
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
   const [trends, setTrends] = useState<Trend[] | null>(null);
 
   const generateTrends = async () => {
     if (!niche.trim()) {
       toast.error("Please enter your channel's niche!");
+      return;
+    }
+    if (!user) {
+      toast.error("Please sign in to scan trends.");
+      return;
+    }
+
+    const creditStatus = await checkCredits(user.uid, 1, { email: user.email, name: user.displayName });
+    if (!creditStatus.allowed) {
+      toast.error(creditStatus.error || "Not enough credits.");
       return;
     }
 
@@ -57,6 +70,7 @@ export default function TrendRadarPage() {
       const json = await res.json();
       if (json.success && json.trendData && json.trendData.trends) {
         setTrends(json.trendData.trends);
+        await deductCredits(user.uid, 1);
         toast.success("Radar scan complete!", {
           description: "Found 4 emerging trends in your niche.",
           icon: <Radar className="text-blue-400" size={18} />
@@ -127,7 +141,7 @@ export default function TrendRadarPage() {
           <div className="space-y-2">
             <label className="text-xs font-semibold uppercase tracking-widest text-muted flex items-center gap-1.5">
               <Target size={14} className="text-blue-400" />
-              What is your channel's exact niche?
+              What is your channel&apos;s exact niche?
             </label>
             <input
               type="text"
@@ -237,7 +251,7 @@ export default function TrendRadarPage() {
                       {/* Analysis */}
                       <div className="space-y-3 bg-[#121212] rounded-xl p-4 border border-[#272727]">
                         <div>
-                          <span className="text-[10px] uppercase font-bold tracking-wider text-blue-400 block mb-1">Why It's Working</span>
+                          <span className="text-[10px] uppercase font-bold tracking-wider text-blue-400 block mb-1">Why It&apos;s Working</span>
                           <p className="text-xs text-muted leading-relaxed">{trend.whyItsWorking}</p>
                         </div>
                         <div className="border-t border-[#272727] pt-2">

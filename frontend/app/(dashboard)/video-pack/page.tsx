@@ -2,15 +2,17 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Sparkles, Flame, Check, Copy, Download, Lightbulb, PenLine, FileText,
-  Tags, Clapperboard, Palette, ArrowRight, Zap, RefreshCw, CircleCheckBig, OctagonAlert
+  Tags, Clapperboard, Palette, Zap, RefreshCw, CircleCheckBig, OctagonAlert
 } from "lucide-react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import PageHeader from "@/components/dashboard/PageHeader";
 import { toast } from "sonner";
 import { addHistoryItem } from "@/lib/history";
+import { useAuth } from "@/components/AuthProvider";
+import { checkCredits, deductCredits } from "@/lib/credits";
 import { jsPDF } from "jspdf";
 
 type VideoPack = {
@@ -62,6 +64,7 @@ export default function VideoPackGenerator() {
   const [tone, setTone] = useState("Viral & Engaging");
   const [niche, setNiche] = useState("Tech & AI");
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
   const [pack, setPack] = useState<VideoPack | null>(null);
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
 
@@ -70,6 +73,17 @@ export default function VideoPackGenerator() {
       toast.error("Topic Required", { description: "Please enter what your video is about.", icon: <OctagonAlert className="text-red-400" size={18} /> });
       return;
     }
+    if (!user) {
+      toast.error("Please sign in to generate video packs.");
+      return;
+    }
+
+    const creditStatus = await checkCredits(user.uid, 3, { email: user.email, name: user.displayName });
+    if (!creditStatus.allowed) {
+      toast.error(creditStatus.error || "Not enough credits. (Requires 3 credits for a full production pack)");
+      return;
+    }
+
     setLoading(true);
     setPack(null);
 
@@ -82,7 +96,8 @@ export default function VideoPackGenerator() {
       const data = await res.json();
       if (data.success && data.pack) {
         setPack(data.pack);
-        addHistoryItem({ tool: "video-pack" as any, input: topic, output: "Generated 3 titles, script outline, description, 20 tags, and thumbnail blueprint." });
+        await deductCredits(user.uid, 3);
+        addHistoryItem({ tool: "video-pack", input: topic, output: "Generated 3 titles, script outline, description, 20 tags, and thumbnail blueprint." });
         toast.success("Viral Video Pack Ready!", { icon: <CircleCheckBig className="text-emerald-400" size={18} /> });
       } else {
         toast.error("Generation Failed", { description: data.error || "Please try again.", icon: <OctagonAlert className="text-red-400" size={18} /> });

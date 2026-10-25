@@ -1,14 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Settings as SettingsIcon, User, Bell, Shield, CreditCard,
-  ChevronDown, ChevronUp, Check, Zap,
+  ChevronDown, ChevronUp, Check, Zap, Loader2, ExternalLink,
 } from "lucide-react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import PageHeader from "@/components/dashboard/PageHeader";
 import { toast } from "sonner";
+import { useAuth } from "@/components/AuthProvider";
+import { db } from "@/lib/firebase";
+import { ref, get, update } from "firebase/database";
+import { updatePassword, updateProfile } from "firebase/auth";
+import { RAZORPAY_PRO_PAYMENT_URL } from "@/lib/constants";
 
 function YoutubeIcon({ className }: { className?: string }) {
   return (
@@ -26,14 +31,8 @@ const accentColors = [
   { label: "Gold", value: "#ffd600" },
 ];
 
-const creditTools = [
-  { tool: "Title Generator", used: 45, color: "#3b82f6" },
-  { tool: "Thumbnail Analyzer", used: 30, color: "#22c55e" },
-  { tool: "Description Generator", used: 25, color: "#f97316" },
-  { tool: "Script Generator", used: 20, color: "#ef4444" },
-];
-
 export default function Settings() {
+  const { user } = useAuth();
   const [expanded, setExpanded] = useState<string | null>("profile");
   const [name, setName] = useState("");
   const [niche, setNiche] = useState("");
@@ -41,12 +40,94 @@ export default function Settings() {
   const [accentColor, setAccentColor] = useState("#ff0033");
   const [emailNotifs, setEmailNotifs] = useState(true);
   const [creditAlerts, setCreditAlerts] = useState(true);
+  const [credits, setCredits] = useState<number>(150);
+  const [tier, setTier] = useState<string>("Free");
   const [saved, setSaved] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [updatingPassword, setUpdatingPassword] = useState(false);
 
-  const handleSave = () => {
+  useEffect(() => {
+    if (!user) return;
+    const timer = setTimeout(() => {
+      setName(user.displayName || "");
+      const userRef = ref(db, `users/${user.uid}`);
+      get(userRef).then((snap) => {
+        if (snap.exists()) {
+          const val = snap.val();
+          if (val.name) setName(val.name);
+          if (val.niche) setNiche(val.niche);
+          if (val.language) setLanguage(val.language);
+          if (val.accentColor) setAccentColor(val.accentColor);
+          if (val.emailNotifs !== undefined) setEmailNotifs(val.emailNotifs);
+          if (val.creditAlerts !== undefined) setCreditAlerts(val.creditAlerts);
+          if (val.credits !== undefined) setCredits(val.credits);
+          if (val.tier) setTier(val.tier);
+        }
+      }).catch((err) => {
+        console.warn("Settings fetch warning:", err);
+      });
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [user]);
+
+  const handleSave = async () => {
+    if (!user) {
+      toast.error("Please sign in first.");
+      return;
+    }
     setSaved(true);
-    toast.success("Settings saved!", { description: "Your preferences have been updated." });
-    setTimeout(() => setSaved(false), 2000);
+    try {
+      const userRef = ref(db, `users/${user.uid}`);
+      await update(userRef, {
+        name,
+        niche,
+        language,
+        accentColor,
+        emailNotifs,
+        creditAlerts,
+      });
+
+      if (name && name !== user.displayName) {
+        await updateProfile(user, { displayName: name });
+      }
+
+      toast.success("Settings saved!", { description: "Your profile has been saved to the cloud." });
+    } catch (err: unknown) {
+      console.error("Save error:", err);
+      const msg = err instanceof Error ? err.message : "Failed";
+      toast.error("Save notice", { description: "Updated locally. Cloud sync: " + msg });
+    } finally {
+      setTimeout(() => setSaved(false), 2000);
+    }
+  };
+
+  const handleUpdatePassword = async () => {
+    if (!user) return;
+    if (!newPassword || newPassword.length < 6) {
+      toast.error("Password must be at least 6 characters.");
+      return;
+    }
+    try {
+      setUpdatingPassword(true);
+      await updatePassword(user, newPassword);
+      toast.success("Password updated successfully!");
+      setNewPassword("");
+    } catch (err: unknown) {
+      console.error(err);
+      const isRecentLogin =
+        typeof err === "object" &&
+        err !== null &&
+        "code" in err &&
+        (err as { code: string }).code === "auth/requires-recent-login";
+      if (isRecentLogin) {
+        toast.error("Security timeout", { description: "Please log out and log back in before changing your password." });
+      } else {
+        const msg = err instanceof Error ? err.message : "Failed to update password.";
+        toast.error(msg);
+      }
+    } finally {
+      setUpdatingPassword(false);
+    }
   };
 
   const sections = [
@@ -257,33 +338,29 @@ export default function Settings() {
                           <div className="space-y-4">
                             <div className="flex items-center justify-between">
                               <div>
-                                <p className="text-sm font-semibold text-foreground">Free Plan</p>
-                                <p className="text-xs text-muted">150 AI credits / month</p>
+                                <p className="text-sm font-semibold text-foreground">{tier} Plan</p>
+                                <p className="text-xs text-muted">{credits} AI credits available</p>
                               </div>
                               <span className="badge badge-accent">Active</span>
                             </div>
 
                             {/* Credit breakdown */}
                             <div>
-                              <p className="text-xs text-muted font-medium mb-3">Credit Usage by Tool</p>
-                              <div className="space-y-2.5">
-                                {creditTools.map((t) => (
-                                  <div key={t.tool}>
-                                    <div className="flex items-center justify-between mb-1">
-                                      <span className="text-xs text-muted">{t.tool}</span>
-                                      <span className="text-xs font-semibold text-foreground">{t.used}</span>
-                                    </div>
-                                    <div className="h-1.5 w-full rounded-full bg-border-color overflow-hidden">
-                                      <motion.div
-                                        className="h-full rounded-full"
-                                        style={{ background: t.color }}
-                                        initial={{ width: 0 }}
-                                        animate={{ width: `${(t.used / 150) * 100}%` }}
-                                        transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
-                                      />
-                                    </div>
-                                  </div>
-                                ))}
+                              <p className="text-xs text-muted font-medium mb-3">Live Credit Balance</p>
+                              <div className="rounded-xl border border-border-color bg-white/2 p-3 space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs text-muted">Available Credits</span>
+                                  <span className="text-sm font-bold text-accent">{credits} / 150</span>
+                                </div>
+                                <div className="h-2 w-full rounded-full bg-border-color overflow-hidden">
+                                  <motion.div
+                                    className="h-full rounded-full"
+                                    style={{ background: "linear-gradient(90deg, #ff0000 0%, #ff4400 100%)" }}
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${Math.min((credits / 150) * 100, 100)}%` }}
+                                    transition={{ duration: 1, ease: "easeOut" }}
+                                  />
+                                </div>
                               </div>
                             </div>
 
@@ -292,10 +369,18 @@ export default function Settings() {
                                 <Zap size={16} className="text-accent" />
                                 <div>
                                   <p className="text-sm font-semibold text-foreground">Upgrade to Pro</p>
-                                  <p className="text-xs text-muted">Unlimited credits + priority AI</p>
+                                  <p className="text-xs text-muted">1,000 credits/mo + priority generation</p>
                                 </div>
                               </div>
-                              <button className="btn-primary text-xs px-4 py-2 rounded-lg">Upgrade</button>
+                              <a
+                                href={RAZORPAY_PRO_PAYMENT_URL}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="btn-primary text-xs px-4 py-2 rounded-lg flex items-center gap-1.5 cursor-pointer shadow-md"
+                              >
+                                <span>Upgrade</span>
+                                <ExternalLink size={12} />
+                              </a>
                             </div>
                           </div>
                         )}
@@ -304,15 +389,26 @@ export default function Settings() {
                         {section.id === "security" && (
                           <div className="space-y-3">
                             <div>
-                              <label className="text-xs text-muted font-medium block mb-1.5">Current Password</label>
-                              <input type="password" placeholder="••••••••" className="input-base" />
-                            </div>
-                            <div>
                               <label className="text-xs text-muted font-medium block mb-1.5">New Password</label>
-                              <input type="password" placeholder="••••••••" className="input-base" />
+                              <input
+                                type="password"
+                                placeholder="Enter at least 6 characters"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                className="input-base"
+                              />
                             </div>
-                            <button onClick={handleSave} className="btn-primary text-sm px-5 py-2.5">
-                              {saved ? <><Check size={14} /> Updated!</> : "Update Password"}
+                            <button
+                              onClick={handleUpdatePassword}
+                              disabled={updatingPassword || !newPassword}
+                              className="btn-primary text-sm px-5 py-2.5 flex items-center gap-2 disabled:opacity-50"
+                            >
+                              {updatingPassword ? (
+                                <Loader2 size={14} className="animate-spin" />
+                              ) : (
+                                <Check size={14} />
+                              )}
+                              Update Password
                             </button>
                           </div>
                         )}

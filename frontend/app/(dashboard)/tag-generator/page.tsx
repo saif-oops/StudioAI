@@ -9,16 +9,30 @@ import Sidebar from "@/components/dashboard/Sidebar";
 import PageHeader from "@/components/dashboard/PageHeader";
 import { addHistoryItem } from "@/lib/history";
 import { toast } from "sonner";
+import { useAuth } from "@/components/AuthProvider";
+import { checkCredits, deductCredits } from "@/lib/credits";
 
 export default function TagGenerator() {
   const [topic, setTopic] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
   const [copiedAll, setCopiedAll] = useState(false);
   const [copiedTag, setCopiedTag] = useState<string | null>(null);
 
   const generateTags = async () => {
     if (!topic.trim()) return;
+    if (!user) {
+      toast.error("Please sign in to generate tags.");
+      return;
+    }
+
+    const creditStatus = await checkCredits(user.uid, 1, { email: user.email, name: user.displayName });
+    if (!creditStatus.allowed) {
+      toast.error(creditStatus.error || "Not enough credits.");
+      return;
+    }
+
     setLoading(true);
     setTags([]);
     try {
@@ -30,8 +44,9 @@ export default function TagGenerator() {
       const data = await res.json();
       if (data.success) {
         setTags(data.tags);
+        await deductCredits(user.uid, 1);
         toast.success("Tags Ready!", { icon: <CircleCheckBig className="text-emerald-400" size={18} /> });
-        addHistoryItem({ tool: "tag-generator" as any, input: topic, output: data.tags });
+        addHistoryItem({ tool: "tag-generator", input: topic, output: data.tags });
       } else {
         toast.error("Generation Failed", { description: "Please try again.", icon: <OctagonAlert className="text-red-400" size={18} /> });
       }
@@ -137,7 +152,7 @@ export default function TagGenerator() {
                       Optimized Tags
                       <span className="badge badge-accent">{tags.length} tags</span>
                     </h3>
-                    <p className="text-[10px] text-muted mt-1">Copy all and paste directly into YouTube's tag box.</p>
+                    <p className="text-[10px] text-muted mt-1">Copy all and paste directly into YouTube&apos;s tag box.</p>
                   </div>
                   <button
                     onClick={copyAllTags}

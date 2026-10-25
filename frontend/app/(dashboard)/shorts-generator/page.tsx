@@ -3,13 +3,15 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Flame, Sparkles, Copy, Download, Check, RefreshCw, Lightbulb,
-  Clock, Target, Zap, CircleCheckBig, OctagonAlert, Smartphone, Repeat, Eye, Video
+  Flame, Copy, Download, Check, RefreshCw, Lightbulb,
+  Clock, Target, Zap, CircleCheckBig, OctagonAlert, Smartphone, Repeat, Video
 } from "lucide-react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import PageHeader from "@/components/dashboard/PageHeader";
 import { toast } from "sonner";
 import { addHistoryItem } from "@/lib/history";
+import { useAuth } from "@/components/AuthProvider";
+import { checkCredits, deductCredits } from "@/lib/credits";
 import { jsPDF } from "jspdf";
 
 type ShortsData = {
@@ -37,6 +39,7 @@ export default function ShortsGeneratorPage() {
   const [duration, setDuration] = useState("30 seconds (Quick Tip)");
   const [style, setStyle] = useState("Curiosity Gap");
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
   const [data, setData] = useState<ShortsData | null>(null);
   const [copiedIndex, setCopiedIndex] = useState<string | null>(null);
 
@@ -50,6 +53,16 @@ export default function ShortsGeneratorPage() {
   const generateShorts = async () => {
     if (!topic.trim()) {
       toast.error("Please enter a video topic!");
+      return;
+    }
+    if (!user) {
+      toast.error("Please sign in to generate shorts.");
+      return;
+    }
+
+    const creditStatus = await checkCredits(user.uid, 1, { email: user.email, name: user.displayName });
+    if (!creditStatus.allowed) {
+      toast.error(creditStatus.error || "Not enough credits.");
       return;
     }
 
@@ -66,6 +79,7 @@ export default function ShortsGeneratorPage() {
       const json = await res.json();
       if (json.success && json.shortsData) {
         setData(json.shortsData);
+        await deductCredits(user.uid, 1);
         toast.success("Viral Shorts Script Ready!", {
           description: "Engineered for 80%+ retention and infinite looping.",
           icon: <CircleCheckBig className="text-emerald-400" size={18} />
@@ -371,7 +385,7 @@ export default function ShortsGeneratorPage() {
                               {h.retentionScore}% Retention
                             </span>
                           </div>
-                          <p className="text-sm font-semibold text-white">"{h.text}"</p>
+                          <p className="text-sm font-semibold text-white">&ldquo;{h.text}&rdquo;</p>
                           <p className="text-[11px] text-muted italic">Why: {h.reason}</p>
                           <button
                             onClick={() => handleCopy(h.text, `Hook #${i + 1}`)}
@@ -436,7 +450,7 @@ export default function ShortsGeneratorPage() {
                         {/* Spoken Script Box */}
                         <div className="bg-[#161616] border border-[#272727] rounded-xl p-4 space-y-2 shadow-inner">
                           <span className="text-[10px] uppercase font-bold tracking-wider text-muted block">SAY OUT LOUD:</span>
-                          <p className="text-base font-semibold text-white leading-relaxed">"{beat.script}"</p>
+                          <p className="text-base font-semibold text-white leading-relaxed">&ldquo;{beat.script}&rdquo;</p>
                         </div>
 
                         {/* Visual Cue Pill */}

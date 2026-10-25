@@ -6,8 +6,9 @@ import Link from "next/link";
 import { ArrowRight, Sparkles, Zap, Flame, LayoutDashboard } from "lucide-react";
 import MarqueeBackground from "./MarqueeBackground";
 
+const words = ["Goes Viral", "Gets Clicked", "Grows Fast", "Builds Brands"];
+
 export default function Hero() {
-  const words = ["Goes Viral", "Gets Clicked", "Grows Fast", "Builds Brands"];
   const [index, setIndex] = useState(0);
 
   useEffect(() => {

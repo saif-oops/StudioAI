@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  BarChart3, TrendingUp, Users, Play, Clock, Zap, Calendar,
+  BarChart3, TrendingUp, Play, Zap, Calendar,
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
@@ -44,12 +44,24 @@ function AnimatedNumber({ value }: { value: number }) {
   return <>{display}</>;
 }
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+interface TooltipPayloadItem {
+  name: string;
+  value: number | string;
+  color?: string;
+}
+
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: TooltipPayloadItem[];
+  label?: string;
+}
+
+const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (active && payload?.length) {
     return (
       <div className="rounded-xl border border-border-color bg-surface px-3 py-2 shadow-xl text-xs">
         <p className="text-muted mb-1">{label}</p>
-        {payload.map((p: any) => (
+        {payload.map((p) => (
           <p key={p.name} style={{ color: p.color }} className="font-semibold">
             {p.value} {p.name === "count" ? "generations" : ""}
           </p>
@@ -64,7 +76,10 @@ export default function Analytics() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
 
   useEffect(() => {
-    setHistory(getHistory());
+    const timer = setTimeout(() => {
+      setHistory(getHistory());
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   // Tool usage breakdown

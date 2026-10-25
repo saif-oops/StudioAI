@@ -2,7 +2,11 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@/components/AuthProvider";
+import { auth, db } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
+import { ref, onValue } from "firebase/database";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
@@ -17,7 +21,6 @@ import {
   Menu,
   X,
   Zap,
-  ChevronRight,
   Lightbulb,
   Tags,
   Search,
@@ -27,7 +30,9 @@ import {
   Sparkles,
   Flame,
   Radar,
+  ExternalLink,
 } from "lucide-react";
+import { RAZORPAY_PRO_PAYMENT_URL } from "@/lib/constants";
 
 const menuItems = [
   { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
@@ -75,40 +80,58 @@ function NavItem({
     <Link
       href={item.path}
       onClick={onClick}
-      className="relative block group"
+      className={`group flex items-center gap-4 rounded-xl px-3.5 py-3 transition-all duration-200 ${
+        active 
+          ? "bg-[#272727] text-white shadow-sm" 
+          : "text-muted hover:bg-[#272727] hover:text-white"
+      }`}
     >
-      {active && (
-        <motion.div
-          layoutId="sidebar-active"
-          className="absolute inset-0 rounded-xl sidebar-link-active"
-          transition={{ type: "spring", stiffness: 400, damping: 35 }}
-        />
-      )}
-      <div
-        className={`relative z-10 flex items-center justify-between gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-150 ${
-          active
-            ? "text-accent"
-            : "text-muted hover:text-foreground hover:bg-white/3"
-        }`}
-      >
-        <div className="flex items-center gap-3">
-          <Icon
-            size={16}
-            strokeWidth={active ? 2.2 : 1.8}
-            className={`shrink-0 transition-all ${item.path === "/video-pack" && !active ? "text-[#ff0000] animate-pulse" : ""}`}
-          />
-          <span className="truncate">{item.name}</span>
-        </div>
-        {active && (
-          <ChevronRight size={12} className="text-accent opacity-60 shrink-0" />
-        )}
-      </div>
+      <Icon 
+        size={20} 
+        strokeWidth={active ? 2.5 : 2} 
+        className={`transition-colors ${active ? "text-accent" : "text-muted group-hover:text-white"}`} 
+      />
+      <span className={`text-sm font-medium ${active ? "font-semibold" : ""}`}>
+        {item.name}
+      </span>
     </Link>
   );
 }
 
 function SidebarContent({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname();
+  const { user } = useAuth();
+  const router = useRouter();
+  const [credits, setCredits] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    const userRef = ref(db, `users/${user.uid}`);
+    const unsubscribe = onValue(
+      userRef,
+      (snapshot) => {
+        if (snapshot.exists() && snapshot.val()?.credits !== undefined) {
+          setCredits(snapshot.val().credits);
+        } else {
+          setCredits(150);
+        }
+      },
+      (error) => {
+        console.warn("Realtime Database credit read warning:", error);
+        setCredits(150);
+      }
+    );
+    return () => unsubscribe();
+  }, [user]);
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      router.push("/");
+    } catch (error) {
+      console.error("Error signing out", error);
+    }
+  };
 
   return (
     <div className="flex h-full flex-col">
@@ -155,7 +178,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
               <p className="text-[10px] text-muted">YouTube Pro</p>
             </div>
           </div>
-          <span className="text-xs font-bold text-accent">120/150</span>
+          <span className="text-xs font-bold text-accent">{credits !== null ? credits : "..."}/150</span>
         </div>
 
         {/* Progress bar */}
@@ -164,19 +187,43 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
             className="h-full rounded-full"
             style={{ background: "linear-gradient(90deg, #ff0000 0%, #ff4400 100%)" }}
             initial={{ width: 0 }}
-            animate={{ width: "80%" }}
+            animate={{ width: `${credits !== null ? Math.min((credits / 150) * 100, 100) : 0}%` }}
             transition={{ duration: 1.2, ease: "easeOut", delay: 0.5 }}
           />
         </div>
 
-        <Link
-          href="/settings"
-          onClick={onClose}
-          className="block w-full text-center rounded-lg border border-accent/20 bg-accent/5 py-1.5 text-xs font-semibold text-accent hover:bg-accent/10 transition-colors"
+        <a
+          href={RAZORPAY_PRO_PAYMENT_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center gap-1.5 w-full text-center rounded-lg border border-accent/30 bg-accent/10 py-1.5 text-xs font-semibold text-accent hover:bg-accent/20 transition-colors shadow-sm"
         >
-          Upgrade Plan
-        </Link>
+          <span>Upgrade to Pro</span>
+          <ExternalLink size={12} />
+        </a>
       </div>
+
+      {user && (
+        <div className="mt-4 pt-4 border-t border-border-color">
+          <div className="flex items-center gap-3 px-2 mb-3">
+            <img 
+              src={user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName || 'User'}&background=random`} 
+              alt="User" 
+              className="w-8 h-8 rounded-full border border-border-color" 
+            />
+            <div className="overflow-hidden">
+              <p className="text-sm font-medium text-white truncate">{user.displayName || "User"}</p>
+              <p className="text-xs text-muted truncate">{user.email}</p>
+            </div>
+          </div>
+          <button
+            onClick={handleSignOut}
+            className="w-full flex justify-center items-center gap-2 py-2 text-sm text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+          >
+            Sign Out
+          </button>
+        </div>
+      )}
     </div>
   );
 }

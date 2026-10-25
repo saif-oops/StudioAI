@@ -9,6 +9,8 @@ import UploadBox from "@/components/dashboard/UploadBox";
 import AnalysisResult from "@/components/dashboard/AnalysisResult";
 import { addHistoryItem } from "@/lib/history";
 import { toast } from "sonner";
+import { useAuth } from "@/components/AuthProvider";
+import { checkCredits, deductCredits } from "@/lib/credits";
 
 export default function ThumbnailAnalyzer() {
   const [image, setImage] = useState<string | null>(null);
@@ -40,8 +42,21 @@ export default function ThumbnailAnalyzer() {
     reader.readAsDataURL(file);
   };
 
+  const { user } = useAuth();
+
   const analyzeThumbnail = async () => {
     if (!imageBase64) return;
+    if (!user) {
+      toast.error("Please sign in to analyze thumbnails.");
+      return;
+    }
+
+    const creditStatus = await checkCredits(user.uid, 1, { email: user.email, name: user.displayName });
+    if (!creditStatus.allowed) {
+      toast.error(creditStatus.error || "Not enough credits.");
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch("/api/analyze-thumbnail", {
@@ -53,6 +68,7 @@ export default function ThumbnailAnalyzer() {
       if (data.success) {
         setAnalysis(data.analysis);
         setAnalyzed(true);
+        await deductCredits(user.uid, 1);
         toast.success("Analysis Complete", {
           description: "Your CTR insights are ready.",
           icon: <CircleCheckBig className="text-emerald-400" size={18} />,

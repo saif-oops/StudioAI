@@ -111,7 +111,7 @@ export default function Testimonials() {
                     <Star key={star} size={14} className="text-yellow-500 fill-yellow-500" />
                   ))}
                 </div>
-                <p className="text-gray-300 mb-6 text-sm leading-relaxed">"{r.text}"</p>
+                <p className="text-gray-300 mb-6 text-sm leading-relaxed">&ldquo;{r.text}&rdquo;</p>
               </div>
               
               <div className="flex items-center gap-3">

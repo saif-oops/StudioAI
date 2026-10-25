@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Inter } from "next/font/google";
 import { Toaster } from "sonner";
+import AuthProvider from "@/components/AuthProvider";
+import AuthModal from "@/components/AuthModal";
 import "./globals.css";
 
 const geist = Geist({
@@ -33,8 +35,11 @@ export default function RootLayout({
       className={`${geist.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        {children}
-        <Toaster theme="dark" closeButton richColors />
+        <AuthProvider>
+          {children}
+          <AuthModal />
+          <Toaster theme="dark" closeButton richColors />
+        </AuthProvider>
       </body>
     </html>
   );

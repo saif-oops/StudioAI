@@ -5,48 +5,92 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   History as HistoryIcon, Trash2, FileText, Search,
   PenLine, Palette, Image as ImageIcon, Clapperboard, ChevronDown, ChevronUp, ExternalLink,
+  Tags, Lightbulb, Flame, Radar, Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import Sidebar from "@/components/dashboard/Sidebar";
 import PageHeader from "@/components/dashboard/PageHeader";
-import { getHistory, deleteHistoryItem, clearHistory, HistoryItem } from "@/lib/history";
+import { getHistory, deleteHistoryItem, clearHistory, syncCloudHistory, HistoryItem } from "@/lib/history";
+import { useAuth } from "@/components/AuthProvider";
 
-const allTools = ["all", "title-generator", "thumbnail-analyzer", "description-generator", "script-generator", "thumbnail-generator"];
+const allTools = [
+  "all",
+  "title-generator",
+  "script-generator",
+  "video-pack",
+  "shorts-generator",
+  "trend-radar",
+  "ideas-generator",
+  "tag-generator",
+  "thumbnail-analyzer",
+  "thumbnail-generator",
+  "description-generator",
+];
+
 const toolLabels: Record<string, string> = {
   all: "All",
   "title-generator": "Titles",
-  "thumbnail-analyzer": "Analyzer",
-  "description-generator": "Description",
   "script-generator": "Script",
+  "video-pack": "Video Pack",
+  "shorts-generator": "Shorts",
+  "trend-radar": "Trend Radar",
+  "ideas-generator": "Ideas",
+  "tag-generator": "Tags",
+  "thumbnail-analyzer": "Analyzer",
   "thumbnail-generator": "Thumbnail",
+  "description-generator": "Description",
 };
+
 const toolIcons: Record<string, React.ElementType> = {
   "title-generator": PenLine,
+  "script-generator": Clapperboard,
+  "video-pack": Sparkles,
+  "shorts-generator": Flame,
+  "trend-radar": Radar,
+  "ideas-generator": Lightbulb,
+  "tag-generator": Tags,
   "thumbnail-analyzer": Palette,
   "thumbnail-generator": ImageIcon,
   "description-generator": FileText,
-  "script-generator": Clapperboard,
 };
+
 const toolColors: Record<string, string> = {
   "title-generator": "text-blue-400",
+  "script-generator": "text-red-400",
+  "video-pack": "text-amber-400",
+  "shorts-generator": "text-rose-400",
+  "trend-radar": "text-cyan-400",
+  "ideas-generator": "text-yellow-400",
+  "tag-generator": "text-teal-400",
   "thumbnail-analyzer": "text-green-400",
   "thumbnail-generator": "text-purple-400",
   "description-generator": "text-orange-400",
-  "script-generator": "text-red-400",
 };
+
 const toolBgs: Record<string, string> = {
   "title-generator": "bg-blue-500/10",
+  "script-generator": "bg-red-500/10",
+  "video-pack": "bg-amber-500/10",
+  "shorts-generator": "bg-rose-500/10",
+  "trend-radar": "bg-cyan-500/10",
+  "ideas-generator": "bg-yellow-500/10",
+  "tag-generator": "bg-teal-500/10",
   "thumbnail-analyzer": "bg-green-500/10",
   "thumbnail-generator": "bg-purple-500/10",
   "description-generator": "bg-orange-500/10",
-  "script-generator": "bg-red-500/10",
 };
+
 const toolPaths: Record<string, string> = {
   "title-generator": "/title-generator",
+  "script-generator": "/script-generator",
+  "video-pack": "/video-pack",
+  "shorts-generator": "/shorts-generator",
+  "trend-radar": "/trend-radar",
+  "ideas-generator": "/ideas-generator",
+  "tag-generator": "/tag-generator",
   "thumbnail-analyzer": "/thumbnail-analyzer",
   "thumbnail-generator": "/thumbnail-generator",
   "description-generator": "/description-generator",
-  "script-generator": "/script-generator",
 };
 
 function timeAgo(ts: number) {
@@ -58,14 +102,23 @@ function timeAgo(ts: number) {
 }
 
 export default function HistoryPage() {
+  const { user } = useAuth();
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    setHistory(getHistory());
-  }, []);
+    const timer = setTimeout(() => {
+      setHistory(getHistory());
+      if (user) {
+        syncCloudHistory(user.uid).then((items) => {
+          setHistory(items);
+        });
+      }
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [user]);
 
   const filtered = history.filter((h) => {
     const toolMatch = filter === "all" || h.tool === filter;
@@ -88,7 +141,11 @@ export default function HistoryPage() {
   const toggleExpand = (id: string) => {
     setExpanded((prev) => {
       const n = new Set(prev);
-      n.has(id) ? n.delete(id) : n.add(id);
+      if (n.has(id)) {
+        n.delete(id);
+      } else {
+        n.add(id);
+      }
       return n;
     });
   };

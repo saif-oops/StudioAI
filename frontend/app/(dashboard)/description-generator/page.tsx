@@ -9,6 +9,8 @@ import Sidebar from "@/components/dashboard/Sidebar";
 import PageHeader from "@/components/dashboard/PageHeader";
 import { addHistoryItem } from "@/lib/history";
 import { toast } from "sonner";
+import { useAuth } from "@/components/AuthProvider";
+import { checkCredits, deductCredits } from "@/lib/credits";
 
 const audiences = ["General", "Gamers", "Tech", "Fitness", "Business", "Kids", "Food"];
 const lengths = [
@@ -37,10 +39,22 @@ export default function DescriptionGenerator() {
   const [tags, setTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState<"description" | "tags" | null>(null);
+  const { user } = useAuth();
   const [copiedTag, setCopiedTag] = useState<string | null>(null);
 
   const generateContent = async () => {
     if (!topic.trim()) return;
+    if (!user) {
+      toast.error("Please sign in to generate descriptions.");
+      return;
+    }
+
+    const creditStatus = await checkCredits(user.uid, 1, { email: user.email, name: user.displayName });
+    if (!creditStatus.allowed) {
+      toast.error(creditStatus.error || "Not enough credits.");
+      return;
+    }
+
     setLoading(true);
     setDescription("");
     setTags([]);
@@ -54,8 +68,9 @@ export default function DescriptionGenerator() {
       if (data.success) {
         setDescription(data.result.description);
         setTags(data.result.tags);
+        await deductCredits(user.uid, 1);
         toast.success("Ready!", { description: "Your SEO description and tags are ready.", icon: <CircleCheckBig className="text-emerald-400" size={18} /> });
-        addHistoryItem({ tool: "description-generator" as any, input: topic, output: data.result });
+        addHistoryItem({ tool: "description-generator", input: topic, output: data.result });
       } else {
         toast.error("Failed", { description: "Could not generate. Try again.", icon: <OctagonAlert className="text-red-400" size={18} /> });
       }

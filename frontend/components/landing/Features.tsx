@@ -1,8 +1,71 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles, Flame, Radar, ImageIcon, FileText, Zap, ArrowUpRight, Play } from "lucide-react";
+import {
+  Sparkles,
+  Flame,
+  Radar,
+  ImageIcon,
+  ArrowUpRight,
+} from "lucide-react";
 import SpotlightCard from "./SpotlightCard";
+
+function FeedSimulatorVideo() {
+  return (
+    <div className="relative z-10 mt-6 w-full bg-[#181818]/90 border border-white/10 rounded-2xl p-3 shadow-2xl transition-all duration-500 group-hover:border-blue-500/30">
+      <div className="relative w-full aspect-video bg-black border border-white/5 rounded-xl overflow-hidden pointer-events-none select-none">
+        <video
+          src="/videos/ab-testing.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover pointer-events-none"
+        />
+
+        {/* Live A/B Badge */}
+        <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 rounded-full bg-black/70 backdrop-blur-md px-2.5 py-0.5 text-[10px] font-semibold text-blue-400 border border-blue-500/30">
+          <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+          A/B Test Feed
+        </div>
+      </div>
+
+      {/* Simulated YouTube Video Metadata */}
+      <div className="flex items-center gap-2.5 pt-3 px-1 pointer-events-none select-none">
+        <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white text-[11px] font-bold shrink-0 shadow-md">
+          S
+        </div>
+        <div className="space-y-1.5 flex-1 min-w-0">
+          <div className="w-4/5 h-2.5 bg-white/25 rounded-full" />
+          <div className="w-1/2 h-2 bg-white/10 rounded-full" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function VideoPackPlayer() {
+  return (
+    <div className="relative z-10 mt-6 w-full">
+      <div className="relative w-full aspect-video md:aspect-[16/9] max-h-[300px] bg-[#121212] border border-white/10 rounded-2xl overflow-hidden shadow-2xl pointer-events-none select-none hover:border-red-500/40 transition-all duration-300">
+        <video
+          src="/videos/video-pack.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover object-top pointer-events-none"
+        />
+
+        {/* Live Badge */}
+        <div className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-black/75 backdrop-blur-md px-3 py-1 text-[11px] font-semibold text-red-400 border border-red-500/30 shadow-lg">
+          <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+          1-Click Live Demo
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Features() {
   return (
@@ -51,18 +114,7 @@ export default function Features() {
               <h3 className="text-3xl font-bold text-white">The 1-Click Video Pack</h3>
               <p className="text-muted-foreground text-lg max-w-md">Type a topic. Get 3 viral titles, a complete script, an SEO description, 20 tags, and a thumbnail blueprint instantly.</p>
             </div>
-            
-            <div className="relative z-10 mt-8">
-               <div className="bg-[#181818] border border-white/10 rounded-xl p-4 flex gap-4 transform group-hover:-translate-y-2 group-hover:rotate-1 transition-transform duration-500 shadow-2xl">
-                 <div className="flex-1 space-y-3">
-                   <div className="h-4 w-3/4 bg-white/10 rounded" />
-                   <div className="h-4 w-1/2 bg-white/10 rounded" />
-                 </div>
-                 <div className="w-24 h-16 bg-[#ff0000]/20 border border-[#ff0000]/30 rounded-lg flex items-center justify-center">
-                   <FileText size={20} className="text-[#ff0000]" />
-                 </div>
-               </div>
-            </div>
+            <VideoPackPlayer />
           </SpotlightCard>
 
           {/* Box 2: Feed Simulator (Tall) */}
@@ -76,18 +128,7 @@ export default function Features() {
               <p className="text-muted-foreground">A/B test your thumbnails against MrBeast & MKBHD in a simulated YouTube dark-mode feed before you upload.</p>
             </div>
 
-            <div className="relative z-10 mt-8 flex-1 w-full bg-[#181818] border border-white/10 rounded-t-2xl p-3 translate-y-8 group-hover:translate-y-4 transition-transform duration-500">
-               <div className="w-full h-24 bg-black border border-white/5 rounded-lg mb-2 flex items-center justify-center">
-                 <Play size={24} className="text-[#ff0000]/50" />
-               </div>
-               <div className="flex gap-2">
-                 <div className="w-6 h-6 rounded-full bg-white/10" />
-                 <div className="space-y-1 flex-1">
-                   <div className="w-full h-2 bg-white/20 rounded" />
-                   <div className="w-2/3 h-2 bg-white/10 rounded" />
-                 </div>
-               </div>
-            </div>
+            <FeedSimulatorVideo />
           </SpotlightCard>
 
           {/* Box 3: Shorts Studio (Wide) */}

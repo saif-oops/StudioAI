@@ -11,6 +11,10 @@ import {
 import Sidebar from "@/components/dashboard/Sidebar";
 import SpotlightCard from "@/components/bits/SpotlightCard";
 import { getHistory, HistoryItem } from "@/lib/history";
+import { useAuth } from "@/components/AuthProvider";
+import { ref, onValue } from "firebase/database";
+import { db } from "@/lib/firebase";
+import { RAZORPAY_PRO_PAYMENT_URL } from "@/lib/constants";
 
 const stagger: Variants = {
   hidden: { opacity: 0 },
@@ -56,19 +60,39 @@ const toolColorMap: Record<string, string> = {
 export default function Dashboard() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
 
+  const { user } = useAuth();
+  const [credits, setCredits] = useState<number | null>(null);
+
   useEffect(() => {
-    setHistory(getHistory());
+    const timer = setTimeout(() => {
+      setHistory(getHistory());
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    if (!user) return;
+    const userRef = ref(db, `users/${user.uid}`);
+    const unsubscribe = onValue(
+      userRef,
+      (snapshot) => {
+        if (snapshot.exists() && snapshot.val()?.credits !== undefined) {
+          setCredits(snapshot.val().credits);
+        } else {
+          setCredits(150);
+        }
+      },
+      () => setCredits(150)
+    );
+    return () => unsubscribe();
+  }, [user]);
+
   const totalGenerations = history.length;
-  const toolUsage: Record<string, number> = {};
-  history.forEach((h) => { toolUsage[h.tool] = (toolUsage[h.tool] || 0) + 1; });
-  const favTool = Object.entries(toolUsage).sort((a, b) => b[1] - a[1])[0]?.[0];
 
   const stats = [
-    { label: "Total Generations", value: totalGenerations || 127, suffix: "", icon: BarChart3, color: "text-blue-400", bg: "bg-blue-400/10" },
+    { label: "Total Generations", value: totalGenerations, suffix: "", icon: BarChart3, color: "text-blue-400", bg: "bg-blue-400/10" },
     { label: "Average CTR", value: 84, suffix: "%", icon: TrendingUp, color: "text-green-400", bg: "bg-green-400/10" },
-    { label: "AI Credits Left", value: 30, suffix: " left", icon: Zap, color: "text-accent", bg: "bg-accent/10" },
+    { label: "AI Credits Left", value: credits !== null ? credits : 150, suffix: " / 150", icon: Zap, color: "text-accent", bg: "bg-accent/10" },
   ];
 
   const actions = [
@@ -141,13 +165,26 @@ export default function Dashboard() {
                     </div>
                   </div>
                   {stat.label === "AI Credits Left" && (
-                    <div className="mt-3 h-1 w-full rounded-full bg-border-color overflow-hidden">
-                      <motion.div
-                        className="h-full rounded-full bg-accent"
-                        initial={{ width: 0 }}
-                        animate={{ width: "20%" }}
-                        transition={{ duration: 1.2, ease: "easeOut", delay: 0.6 }}
-                      />
+                    <div className="mt-3 space-y-2">
+                      <div className="h-1.5 w-full rounded-full bg-border-color overflow-hidden">
+                        <motion.div
+                          className="h-full rounded-full bg-accent"
+                          initial={{ width: 0 }}
+                          animate={{ width: `${credits !== null ? Math.min((credits / 150) * 100, 100) : 100}%` }}
+                          transition={{ duration: 1.2, ease: "easeOut", delay: 0.6 }}
+                        />
+                      </div>
+                      <div className="flex justify-between items-center pt-0.5">
+                        <span className="text-[10px] text-muted font-medium">Free Plan</span>
+                        <a
+                          href={RAZORPAY_PRO_PAYMENT_URL}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[10px] font-semibold text-accent hover:underline flex items-center gap-0.5 cursor-pointer"
+                        >
+                          Upgrade Plan ⚡
+                        </a>
+                      </div>
                     </div>
                   )}
                 </SpotlightCard>

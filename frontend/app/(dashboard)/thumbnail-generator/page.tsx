@@ -11,6 +11,8 @@ import {
 import Sidebar from "@/components/dashboard/Sidebar";
 import PageHeader from "@/components/dashboard/PageHeader";
 import { toast } from "sonner";
+import { useAuth } from "@/components/AuthProvider";
+import { checkCredits, deductCredits } from "@/lib/credits";
 
 const mockCompetitors = [
   {
@@ -79,6 +81,26 @@ const aspectRatios = [
   { label: "9:16", desc: "1080x1920", value: "9:16 (1080x1920)" },
 ];
 
+// Groups words so lines are roughly balanced by character length (approx 12-15 chars max)
+function wrapTitleLines(title: string): string[] {
+  const words = title.trim().split(/\s+/).filter(Boolean);
+  const lines: string[] = [];
+  let currentLine = "";
+  
+  for (const word of words) {
+    if ((currentLine + " " + word).trim().length > 14 && currentLine.length > 0) {
+      lines.push(currentLine.trim());
+      currentLine = word;
+    } else {
+      currentLine = (currentLine + " " + word).trim();
+    }
+  }
+  if (currentLine) {
+    lines.push(currentLine);
+  }
+  return lines;
+}
+
 export default function ThumbnailGenerator() {
   const [photo, setPhoto] = useState<string | null>(null);
   const [photoBase64, setPhotoBase64] = useState<string | null>(null);
@@ -97,16 +119,19 @@ export default function ThumbnailGenerator() {
   const [isExtracting, setIsExtracting] = useState(false);
 
   useEffect(() => {
-    const savedPrompt = localStorage.getItem("saflix_thumbnail_prompt");
-    const savedTitle = localStorage.getItem("saflix_thumbnail_title");
-    if (savedPrompt) {
-      setDescription(savedPrompt);
-      localStorage.removeItem("saflix_thumbnail_prompt");
-    }
-    if (savedTitle) {
-      setTitle(savedTitle);
-      localStorage.removeItem("saflix_thumbnail_title");
-    }
+    const timer = setTimeout(() => {
+      const savedPrompt = localStorage.getItem("saflix_thumbnail_prompt");
+      const savedTitle = localStorage.getItem("saflix_thumbnail_title");
+      if (savedPrompt) {
+        setDescription(savedPrompt);
+        localStorage.removeItem("saflix_thumbnail_prompt");
+      }
+      if (savedTitle) {
+        setTitle(savedTitle);
+        localStorage.removeItem("saflix_thumbnail_title");
+      }
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -133,6 +158,8 @@ export default function ThumbnailGenerator() {
     setIsExtracting(false);
   };
 
+  const { user } = useAuth();
+
   const generateThumbnail = async (isRefinement = false) => {
     if (!photoBase64 || !title.trim()) {
       toast.error("Input Required", { description: "Please upload a photo and enter a title.", icon: <OctagonAlert className="text-red-400" size={18} /> });
@@ -142,6 +169,18 @@ export default function ThumbnailGenerator() {
       toast.error("Prompt Required", { description: "Please enter what you want to change.", icon: <OctagonAlert className="text-red-400" size={18} /> });
       return;
     }
+    if (!user) {
+      toast.error("Please sign in to generate thumbnails.");
+      return;
+    }
+
+    const creditCost = 2;
+    const creditStatus = await checkCredits(user.uid, creditCost, { email: user.email, name: user.displayName });
+    if (!creditStatus.allowed) {
+      toast.error(creditStatus.error || "Not enough credits. (Thumbnail generation requires 2 credits)");
+      return;
+    }
+
     setLoading(true);
     const descToSend = isRefinement
       ? `${description}. IMPORTANT REFINEMENT / MODIFICATION INSTRUCTIONS: ${refinePrompt}`
@@ -162,6 +201,7 @@ export default function ThumbnailGenerator() {
         setGeneratedImage(data.image);
         setHistory((prev) => [data.image, ...prev].slice(0, 3));
         if (isRefinement) setRefinePrompt("");
+        await deductCredits(user.uid, creditCost);
         toast.success(isRefinement ? "Thumbnail Refined!" : "Thumbnail Generated!", { icon: <CircleCheckBig className="text-emerald-400" size={18} /> });
       } else {
         toast.error("Generation Failed", { description: data.error || "Please try again.", icon: <OctagonAlert className="text-red-400" size={18} /> });
@@ -232,6 +272,9 @@ export default function ThumbnailGenerator() {
                       <Trash2 size={11} />
                     </button>
                   </div>
+                  {isExtracting && (
+                    <p className="text-[11px] text-accent font-medium animate-pulse">Removing background...</p>
+                  )}
                 </div>
               )}
             </div>
@@ -339,18 +382,32 @@ export default function ThumbnailGenerator() {
                     >
                       {/* Middle Layer: Extracted Subject */}
                       {extractedPhoto && (
-                        <div className="absolute right-0 bottom-0 h-[90%] w-[55%] flex justify-end items-end pointer-events-none">
-                          <img src={extractedPhoto} alt="Subject" className="object-contain object-bottom h-full max-w-full drop-shadow-[0_0_20px_rgba(0,0,0,0.6)]" />
+                        <div className="absolute right-0 bottom-0 h-[100%] w-[65%] flex justify-end items-end pointer-events-none">
+                          <img 
+                            src={extractedPhoto} 
+                            alt="Subject" 
+                            className="object-contain object-bottom h-[115%] w-auto max-w-none origin-bottom-right drop-shadow-[0_0_25px_rgba(0,0,0,0.8)]" 
+                          />
                         </div>
                       )}
                       
                       {/* Top Layer: Typography */}
-                      <div className="w-[55%] flex flex-col justify-center pl-[6%] z-10 relative pointer-events-none">
-                         {title && title.split(" ").map((word, i) => (
-                           <div key={i} className="w-fit bg-[#ffeb3b] text-black font-black uppercase text-[4.5vw] sm:text-[3.5vw] md:text-[2.5vw] lg:text-[2.5vw] xl:text-[2.2vw] leading-none tracking-tighter px-[4%] py-[2%] mb-[2%] transform -rotate-3 shadow-[min(0.5vw,8px)_min(0.5vw,8px)_0px_0px_rgba(0,0,0,1)] border-[min(0.2vw,4px)] border-black">
-                             {word}
-                           </div>
-                         ))}
+                      <div className="w-[60%] flex flex-col justify-center pl-[5%] z-10 relative pointer-events-none">
+                         {title && wrapTitleLines(title).map((line, i) => {
+                           const linesCount = wrapTitleLines(title).length;
+                           const fontSizeVw = linesCount <= 2 ? 4.5 : linesCount <= 3 ? 3.8 : 3.0;
+                           // Stagger the rotation slightly for a more organic feel
+                           const rotate = i % 2 === 0 ? "-rotate-2" : "-rotate-3";
+                           return (
+                             <div
+                               key={i}
+                               className={`w-fit max-w-full bg-[#ffeb3b] text-black font-black uppercase leading-none tracking-tighter px-[4%] py-[2%] mb-[2%] transform ${rotate} shadow-[min(0.6vw,10px)_min(0.6vw,10px)_0px_0px_rgba(0,0,0,1)] border-[min(0.2vw,4px)] border-black break-words`}
+                               style={{ fontSize: `${fontSizeVw}vw` }}
+                             >
+                               {line}
+                             </div>
+                           );
+                         })}
                       </div>
                     </div>
                   </div>
@@ -447,7 +504,7 @@ export default function ThumbnailGenerator() {
                     YouTube Home Feed Simulator
                   </h3>
                   <p className="text-xs text-muted mt-1">
-                    Test how your 1280x720 thumbnail stands out against top creators in YouTube's Dark Theme before publishing!
+                    Test how your 1280x720 thumbnail stands out against top creators in YouTube&apos;s Dark Theme before publishing!
                   </p>
                 </div>
 

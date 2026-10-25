@@ -1,8 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check, Sparkles } from "lucide-react";
+import { Check, Sparkles, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { RAZORPAY_PRO_PAYMENT_URL } from "@/lib/constants";
 
 export default function Pricing() {
   const plans = [
@@ -19,6 +20,8 @@ export default function Pricing() {
         "Community Support",
       ],
       cta: "Start Free",
+      href: "/dashboard",
+      isExternal: false,
       highlight: false,
     },
     {
@@ -35,6 +38,8 @@ export default function Pricing() {
         "Premium PDF Blueprints",
       ],
       cta: "Upgrade to Pro",
+      href: RAZORPAY_PRO_PAYMENT_URL,
+      isExternal: true,
       highlight: true,
     },
     {
@@ -50,6 +55,8 @@ export default function Pricing() {
         "Priority 24/7 Support",
       ],
       cta: "Contact Sales",
+      href: "#contact",
+      isExternal: false,
       highlight: false,
     }
   ];
@@ -122,16 +129,32 @@ export default function Pricing() {
                 ))}
               </ul>
 
-              <Link
-                href="/dashboard"
-                className={`w-full flex items-center justify-center py-3.5 rounded-xl text-sm font-bold transition-all ${
-                  plan.highlight
-                    ? "bg-[#ff0000] text-white hover:bg-red-700 shadow-lg shadow-[#ff0000]/20"
-                    : "bg-white/10 text-white hover:bg-white/20"
-                }`}
-              >
-                {plan.cta}
-              </Link>
+              {plan.isExternal ? (
+                <a
+                  href={plan.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold transition-all ${
+                    plan.highlight
+                      ? "bg-[#ff0000] text-white hover:bg-red-700 shadow-lg shadow-[#ff0000]/20"
+                      : "bg-white/10 text-white hover:bg-white/20"
+                  }`}
+                >
+                  <span>{plan.cta}</span>
+                  <ExternalLink size={14} />
+                </a>
+              ) : (
+                <Link
+                  href={plan.href}
+                  className={`w-full flex items-center justify-center py-3.5 rounded-xl text-sm font-bold transition-all ${
+                    plan.highlight
+                      ? "bg-[#ff0000] text-white hover:bg-red-700 shadow-lg shadow-[#ff0000]/20"
+                      : "bg-white/10 text-white hover:bg-white/20"
+                  }`}
+                >
+                  {plan.cta}
+                </Link>
+              )}
             </motion.div>
           ))}
         </div>

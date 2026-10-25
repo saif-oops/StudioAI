@@ -10,6 +10,11 @@ import Sidebar from "@/components/dashboard/Sidebar";
 import PageHeader from "@/components/dashboard/PageHeader";
 import { addHistoryItem } from "@/lib/history";
 import { toast } from "sonner";
+import { useAuth } from "@/components/AuthProvider";
+import { ref, get, update, set } from "firebase/database";
+import { db } from "@/lib/firebase";
+import { generateScript as generateScriptAI } from "@/app/actions/ai";
+import { notifyInsufficientCredits } from "@/lib/credits";
 
 const styles = ["Educational", "Entertainment", "Tutorial", "Vlog", "Documentary", "Motivational"];
 const videoLengths = [
@@ -36,30 +41,73 @@ export default function ScriptGenerator() {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
   const [expandedItems, setExpandedItems] = useState<Set<number>>(new Set());
+  const { user } = useAuth();
 
   const generateScript = async () => {
     if (!topic.trim()) return;
+    if (!user) {
+      toast.error("You must be logged in to generate scripts.");
+      return;
+    }
+
     setLoading(true);
     setHook("");
     setOutline([]);
     setExpandedItems(new Set());
+    
     try {
-      const res = await fetch("/api/generate-script", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic, style, videoLength }),
-      });
-      const data = await res.json();
-      if (data.success) {
+      // 1. Check credits
+      let credits = 150;
+      let userRef: ReturnType<typeof ref> | null = null;
+      try {
+        userRef = ref(db, `users/${user.uid}`);
+        const userSnap = await get(userRef);
+        if (userSnap.exists()) {
+          credits = userSnap.val().credits ?? 150;
+        } else {
+          await set(userRef, {
+            email: user.email,
+            name: user.displayName,
+            credits: 150,
+            tier: "Free",
+            createdAt: new Date().toISOString(),
+          });
+        }
+      } catch (dbErr) {
+        console.warn("Credit check warning:", dbErr);
+      }
+
+      if (credits < 1) {
+        notifyInsufficientCredits("Not enough credits to generate a script.");
+        setLoading(false);
+        return;
+      }
+      
+      // 2. Call AI Action
+      const selectedLengthDesc = videoLengths.find((l) => l.value === videoLength)?.desc || "";
+      const data = await generateScriptAI(topic, style, selectedLengthDesc);
+      
+      if (data.success && data.result) {
         setHook(data.result.hook);
         setOutline(data.result.outline);
+        
+        // 3. Deduct credit
+        try {
+          if (userRef) {
+            await update(userRef, { credits: Math.max(0, credits - 1) });
+          }
+        } catch (updateErr) {
+          console.warn("Credit update warning:", updateErr);
+        }
+        
         toast.success("Script Ready!", { icon: <CircleCheckBig className="text-emerald-400" size={18} /> });
-        addHistoryItem({ tool: "script-generator" as any, input: topic, output: data.result });
+        addHistoryItem({ tool: "script-generator", input: topic, output: data.result });
       } else {
-        toast.error("Failed", { description: "Could not generate. Try again.", icon: <OctagonAlert className="text-red-400" size={18} /> });
+        toast.error("Failed to generate", { description: data.error || "Try again.", icon: <OctagonAlert className="text-red-400" size={18} /> });
       }
-    } catch {
-      toast.error("Something went wrong");
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "Something went wrong";
+      toast.error(msg);
     }
     setLoading(false);
   };
@@ -74,7 +122,11 @@ export default function ScriptGenerator() {
   const toggleExpand = (idx: number) => {
     setExpandedItems((prev) => {
       const n = new Set(prev);
-      n.has(idx) ? n.delete(idx) : n.add(idx);
+      if (n.has(idx)) {
+        n.delete(idx);
+      } else {
+        n.add(idx);
+      }
       return n;
     });
   };

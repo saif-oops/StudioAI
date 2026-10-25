@@ -20,9 +20,16 @@
 # production
 /build
 
+# IDEs & Editor metadata
+.claude
+.windsurf
+.idea
+.vscode
+
 # misc
 .DS_Store
 *.pem
+*.tsbuildinfo
 
 # debug
 npm-debug.log*
@@ -39,3 +46,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/lib/generated/prisma
